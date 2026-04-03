@@ -26,7 +26,7 @@ export default function Footer() {
                 loading="eager"
                 referrerPolicy="no-referrer"
               />
-              <span className="nav-logo-text">PetCare</span>
+             <span className="nav-logo-text">PetCare</span>
             </Link>
             <p>Your one-stop destination for premium pet products, expert care, and happy pets.</p>
             <div className="footer-socials">
