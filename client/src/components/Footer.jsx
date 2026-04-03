@@ -73,11 +73,7 @@ export default function Footer() {
                   View on Google Maps
                 </a>
               </li>
-              <li>
-                <a href={clinicDetails.listingUrl} target="_blank" rel="noreferrer">
-                  View business listing
-                </a>
-              </li>
+              {/* Removed 'View business listing' link as requested */}
             </ul>
           </div>
         </div>
