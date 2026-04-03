@@ -1,12 +1,12 @@
 import { useState } from "react";
 
 const doctors = [
-  { id: 1, avatar: "👨‍⚕️", name: "Dr. Samuel Rivera",  spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon–Fri",  fee: "$60" },
-  { id: 2, avatar: "👩‍⚕️", name: "Dr. Priya Nair",     spec: "Animal Surgeon",       exp: "9 yrs",  rating: "★★★★★ 4.8", avail: "Mon–Sat",  fee: "$80" },
-  { id: 3, avatar: "👨‍⚕️", name: "Dr. James Okafor",   spec: "Pet Behaviourist",     exp: "7 yrs",  rating: "★★★★☆ 4.6", avail: "Tue–Sat",  fee: "$65" },
-  { id: 4, avatar: "👩‍⚕️", name: "Dr. Elena Voss",     spec: "Dermatologist",        exp: "11 yrs", rating: "★★★★★ 4.9", avail: "Mon–Thu",  fee: "$70" },
-  { id: 5, avatar: "👨‍⚕️", name: "Dr. Carlos Mendes",  spec: "Dental Specialist",    exp: "8 yrs",  rating: "★★★★☆ 4.5", avail: "Wed–Sun",  fee: "$75" },
-  { id: 6, avatar: "👩‍⚕️", name: "Dr. Aisha Kamara",   spec: "Nutritionist",         exp: "6 yrs",  rating: "★★★★★ 4.7", avail: "Mon–Fri",  fee: "$55" },
+  { id: 1, avatar: "👨‍⚕️", name: "Dr. Samuel Rivera",  spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon–Fri",  fee: "₹3,000" },
+  { id: 2, avatar: "👩‍⚕️", name: "Dr. Priya Nair",     spec: "Animal Surgeon",       exp: "9 yrs",  rating: "★★★★★ 4.8", avail: "Mon–Sat",  fee: "₹4,000" },
+  { id: 3, avatar: "👨‍⚕️", name: "Dr. James Okafor",   spec: "Pet Behaviourist",     exp: "7 yrs",  rating: "★★★★☆ 4.6", avail: "Tue–Sat",  fee: "₹3,250" },
+  { id: 4, avatar: "👩‍⚕️", name: "Dr. Elena Voss",     spec: "Dermatologist",        exp: "11 yrs", rating: "★★★★★ 4.9", avail: "Mon–Thu",  fee: "₹3,500" },
+  { id: 5, avatar: "👨‍⚕️", name: "Dr. Carlos Mendes",  spec: "Dental Specialist",    exp: "8 yrs",  rating: "★★★★☆ 4.5", avail: "Wed–Sun",  fee: "₹3,750" },
+  { id: 6, avatar: "👩‍⚕️", name: "Dr. Aisha Kamara",   spec: "Nutritionist",         exp: "6 yrs",  rating: "★★★★★ 4.7", avail: "Mon–Fri",  fee: "₹2,750" },
 ];
 
 const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
