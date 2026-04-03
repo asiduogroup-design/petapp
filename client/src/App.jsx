@@ -7,8 +7,9 @@ import Products from "./pages/Products";
 import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
 import LoginRegister from "./pages/LoginRegister";
+import UserProfile from "./pages/UserProfile";
 
-function Layout({ isLoggedIn, onLogin, onLogout }) {
+function Layout({ isLoggedIn, user, onLogin, onLogout }) {
   const { pathname } = useLocation();
   return (
     <>
@@ -19,6 +20,7 @@ function Layout({ isLoggedIn, onLogin, onLogout }) {
         <Route path="/services" element={<Services />} />
         <Route path="/doctors" element={<DoctorsAppointment />} />
         <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
+        <Route path="/user" element={<UserProfile isLoggedIn={isLoggedIn} user={user} />} />
       </Routes>
       {pathname !== "/login" && <Footer />}
     </>
@@ -27,19 +29,29 @@ function Layout({ isLoggedIn, onLogin, onLogout }) {
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem("petapp_logged_in") === "true");
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("petapp_user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const handleLogin = () => {
+  const handleLogin = (userData) => {
     setIsLoggedIn(true);
+    if (userData) {
+      localStorage.setItem("petapp_user", JSON.stringify(userData));
+      setUser(userData);
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("petapp_logged_in");
+    localStorage.removeItem("petapp_user");
     setIsLoggedIn(false);
+    setUser(null);
   };
 
   return (
     <BrowserRouter>
-      <Layout isLoggedIn={isLoggedIn} onLogin={handleLogin} onLogout={handleLogout} />
+      <Layout isLoggedIn={isLoggedIn} user={user} onLogin={handleLogin} onLogout={handleLogout} />
     </BrowserRouter>
   );
 }

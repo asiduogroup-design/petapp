@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
 
 export default function LoginRegister({ onLogin }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("login");
   const [login, setLogin] = useState(blankLogin);
   const [reg, setReg] = useState(blankReg);
@@ -17,11 +18,16 @@ export default function LoginRegister({ onLogin }) {
 
   const submitLogin = (e) => {
     e.preventDefault();
+    const storedUser = localStorage.getItem("petapp_user");
+    const parsedUser = storedUser
+      ? JSON.parse(storedUser)
+      : { name: "Kalyan", email: login.email, phone: "+91 0000000000" };
     localStorage.setItem("petapp_logged_in", "true");
     if (onLogin) {
-      onLogin();
+      onLogin(parsedUser);
     }
     setLoginDone(true);
+    navigate("/user");
   };
 
   const submitReg = (e) => {
@@ -35,6 +41,14 @@ export default function LoginRegister({ onLogin }) {
       setRegError("Passwords do not match.");
       return;
     }
+    localStorage.setItem(
+      "petapp_user",
+      JSON.stringify({
+        name: reg.name,
+        email: reg.email,
+        phone: reg.phone || "+91 0000000000",
+      })
+    );
     setRegDone(true);
   };
 
