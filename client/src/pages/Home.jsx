@@ -5,7 +5,7 @@ const offers = [
   {
     gradient: "linear-gradient(135deg,#0d9488,#0ea5e9)",
     badge: "📦 Free Shipping",
-    title: "Free Delivery on Orders Over $40",
+    title: "Free Delivery on Orders Over ₹2000",
     desc: "Get premium pet food and accessories delivered straight to your door at no extra cost.",
     cta: "Shop Now",
     to: "/products",
@@ -31,28 +31,28 @@ const offers = [
   },
   {
     gradient: "linear-gradient(135deg,#14b8a6,#0f766e)",
-    badge: "🎁 Adoption Bonus",
-    title: "1 Year Free Doctor Appointment",
-    desc: "Adopt any pet with us and get complimentary vet consultations for one full year.",
-    cta: "Adopt Now",
+    badge: "🎉 Seasonal Offer",
+    title: "Flat 20% Off on All Pet Medicines",
+    desc: "Get discounts on essential pet medications and health supplements for the season.",
+    cta: "Shop Now",
     to: "/products",
-    emoji: "🩺",
+    emoji: "💊",
   },
 ];
 
 const products = [
-  { id: 1, emoji: "🦴", name: "Premium Dog Kibble", cat: "Dog Food", price: "$18.99", stars: "★★★★★" },
-  { id: 2, emoji: "🐟", name: "Tuna & Shrimp Cat Treats", cat: "Cat Food", price: "$7.49", stars: "★★★★☆" },
-  { id: 3, emoji: "🐾", name: "Paw-Print Collar", cat: "Accessory", price: "$12.99", stars: "★★★★★" },
-  { id: 4, emoji: "🏡", name: "Orthopedic Pet Bed", cat: "Beds", price: "$34.99", stars: "★★★★☆" },
-  { id: 5, emoji: "🎾", name: "Interactive Fetch Ball", cat: "Toys", price: "$8.99", stars: "★★★★★" },
-  { id: 6, emoji: "💊", name: "Daily Multivitamin Chews", cat: "Health", price: "$22.99", stars: "★★★★☆" },
+  { id: 1, emoji: "🦴", name: "Premium Dog Kibble", cat: "Dog Food", price: "₹899", stars: "★★★★★" },
+  { id: 2, emoji: "🐟", name: "Tuna & Shrimp Cat Treats", cat: "Cat Food", price: "₹349", stars: "★★★★☆" },
+  { id: 3, emoji: "🐾", name: "Paw-Print Collar", cat: "Accessory", price: "₹599", stars: "★★★★★" },
+  { id: 4, emoji: "🏡", name: "Orthopedic Pet Bed", cat: "Beds", price: "₹1,599", stars: "★★★★☆" },
+  { id: 5, emoji: "🎾", name: "Interactive Fetch Ball", cat: "Toys", price: "₹399", stars: "★★★★★" },
+  { id: 6, emoji: "💊", name: "Daily Multivitamin Chews", cat: "Health", price: "₹1,099", stars: "★★★★☆" },
 ];
 
 const services = [
-  { icon: "✂️", name: "Pet Grooming", desc: "Professional bathing, trimming, and breed-specific styling for all pets.", price: "from $25" },
-  { icon: "💉", name: "Vaccination", desc: "Complete vaccination programs to keep your pets safe and healthy.", price: "from $30" },
-  { icon: "🦷", name: "Dental Care", desc: "Professional dental cleaning and oral health assessments by expert vets.", price: "from $40" },
+  { icon: "✂️", name: "Pet Grooming", desc: "Professional bathing, trimming, and breed-specific styling for all pets.", price: "from ₹1,200" },
+  { icon: "💉", name: "Vaccination", desc: "Complete vaccination programs to keep your pets safe and healthy.", price: "from ₹1,500" },
+  { icon: "🦷", name: "Dental Care", desc: "Professional dental cleaning and oral health assessments by expert vets.", price: "from ₹2,000" },
   { icon: "🏥", name: "Emergency Care", desc: "Round-the-clock emergency veterinary services when you need them most.", price: "Call for rates" },
 ];
 
@@ -64,23 +64,23 @@ const doctors = [
 
 const heroSlides = [
   {
-    badge: "🐾 Pet Adoption Hub",
-    title: "Find Your Perfect Friend",
-    highlight: "Adopt Your Pet",
-    desc: "Browse lovable cats and dogs ready for a forever home with complete health and care details.",
-    cta: "Adopt Your Pet",
+    badge: "�️ Pet Products & Accessories",
+    title: "Everything Your Pet",
+    highlight: "Needs & Wants",
+    desc: "Shop premium food, medicines, toys, clothing, and accessories for all your beloved pets.",
+    cta: "Shop Now",
     to: "/products",
     stats: [
-      { value: "5,000+", label: "Pets Available" },
-      { value: "120+", label: "Pet Breeds" },
+      { value: "500+", label: "Products" },
+      { value: "50+", label: "Brands" },
     ],
-    visualHeading: "Pet Categories",
+    visualHeading: "Product Categories",
     visuals: [
-      { image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=300&q=80", label: "Dogs" },
-      { image: "https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=300&q=80", label: "Cats" },
-      { image: "https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&w=300&q=80", label: "Birds" },
-      { image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&w=300&q=80", label: "Fishes" },
-      { image: "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=300&q=80", label: "Rabbits" },
+      { image: "https://images.unsplash.com/photo-1537236398183-20ce192e014d?w=300&q=80", label: "Food" },
+      { image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&q=80", label: "Toys" },
+      { image: "https://images.unsplash.com/photo-1587854692152-cbe660dbde56?w=300&q=80", label: "Medicines" },
+      { image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80", label: "Clothing" },
+      { image: "https://images.unsplash.com/photo-1552053831-71594a27c62d?w=300&q=80", label: "Accessories" },
     ],
   },
   {

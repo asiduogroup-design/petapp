@@ -1,5 +1,17 @@
 import { Link } from "react-router-dom";
 
+const clinicDetails = {
+  name: "Kalyan Pets & Clinic",
+  addressLine1: "Doo No :43-106-19, Near Sai Baba Temple",
+  addressLine2: "Beside Apollo Pharmacy, Nuzvid Main Road, P&T Colony",
+  cityLine: "Singh Nagar, Vijayawada - 520015, Andhra Pradesh",
+  hours: "Mon-Sun: 9:00 AM - 10:00 PM",
+  specialties: "Pet Clinic, Veterinary Care, Pet Food, Dog Accessories",
+  mapUrl: "https://maps.google.com/?q=16.5416181,80.6375518",
+  listingUrl:
+    "https://www.justdial.com/Vijayawada/Kalyan-Pets-Clinic-Near-Sai-Baba-Temple-Beside-Apollo-Pharmacy-Singh-Nagar/0866PX866-X866-230803161734-T1Q8_BZDET",
+};
+
 export default function Footer() {
   return (
     <footer className="footer">
@@ -42,12 +54,24 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
-            <h4>Contact</h4>
+            <h4>Contact Us</h4>
             <ul>
-              <li>📍 123 Pet Lane, NY 10001</li>
-              <li>📞 +1 (555) 234-5678</li>
-              <li>✉️ hello@petcare.com</li>
-              <li>🕐 Mon–Sat: 8am – 8pm</li>
+              <li>{clinicDetails.name}</li>
+              <li>{clinicDetails.addressLine1}</li>
+              <li>{clinicDetails.addressLine2}</li>
+              <li>{clinicDetails.cityLine}</li>
+              <li>{clinicDetails.hours}</li>
+              <li>{clinicDetails.specialties}</li>
+              <li>
+                <a href={clinicDetails.mapUrl} target="_blank" rel="noreferrer">
+                  View on Google Maps
+                </a>
+              </li>
+              <li>
+                <a href={clinicDetails.listingUrl} target="_blank" rel="noreferrer">
+                  View business listing
+                </a>
+              </li>
             </ul>
           </div>
         </div>
