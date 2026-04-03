@@ -281,6 +281,13 @@ a { text-decoration: none; }
 .page-banner h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 0.4rem; }
 .page-banner p { opacity: 0.88; max-width: 55ch; }
 
+/* ===== PET TYPE BAR (Products Page) ===== */
+.pet-type-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.pet-type-btn { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1.2rem; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--card-bg); cursor: pointer; font-size: 0.92rem; font-weight: 600; color: var(--text); transition: all 0.2s; }
+.pet-type-btn:hover { border-color: var(--primary); color: var(--primary); }
+.pet-type-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.pet-type-icon { font-size: 1.1rem; }
+
 /* ===== FILTERS (Products Page) ===== */
 .filters { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
 .filter-label { font-weight: 600; font-size: 0.9rem; }
