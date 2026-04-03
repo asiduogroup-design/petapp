@@ -1,18 +1,18 @@
 import { useState } from "react";
 
 const allProducts = [
-  { id: 1,  emoji: "🦴", name: "Premium Dog Kibble",        cat: "Food",        price: 18.99, stars: "★★★★★", rating: 5.0 },
-  { id: 2,  emoji: "🐟", name: "Tuna & Shrimp Cat Treats",  cat: "Food",        price: 7.49,  stars: "★★★★☆", rating: 4.2 },
-  { id: 3,  emoji: "🌿", name: "Organic Hamster Mix",       cat: "Food",        price: 9.99,  stars: "★★★★★", rating: 4.8 },
-  { id: 4,  emoji: "🐾", name: "Paw-Print Collar",          cat: "Accessories", price: 12.99, stars: "★★★★★", rating: 4.9 },
-  { id: 5,  emoji: "🎾", name: "Interactive Fetch Ball",    cat: "Toys",        price: 8.99,  stars: "★★★★★", rating: 4.7 },
-  { id: 6,  emoji: "🏡", name: "Orthopedic Pet Bed",        cat: "Accessories", price: 34.99, stars: "★★★★☆", rating: 4.5 },
-  { id: 7,  emoji: "💊", name: "Daily Multivitamin Chews",  cat: "Medicine",    price: 22.99, stars: "★★★★☆", rating: 4.3 },
-  { id: 8,  emoji: "🦮", name: "Retractable Dog Leash",     cat: "Accessories", price: 16.49, stars: "★★★★★", rating: 4.8 },
-  { id: 9,  emoji: "🧸", name: "Catnip Plush Mouse",        cat: "Toys",        price: 5.99,  stars: "★★★★☆", rating: 4.1 },
-  { id: 10, emoji: "💉", name: "Flea & Tick Drops",         cat: "Medicine",    price: 29.99, stars: "★★★★★", rating: 4.9 },
-  { id: 11, emoji: "🐠", name: "Tropical Fish Flakes",      cat: "Food",        price: 4.49,  stars: "★★★★☆", rating: 4.0 },
-  { id: 12, emoji: "🛁", name: "Gentle Pet Shampoo",        cat: "Accessories", price: 11.99, stars: "★★★★★", rating: 4.7 },
+  { id: 1,  emoji: "🦴", name: "Premium Dog Kibble",        cat: "Food",        price: 899, stars: "★★★★★", rating: 5.0 },
+  { id: 2,  emoji: "🐟", name: "Tuna & Shrimp Cat Treats",  cat: "Food",        price: 349,  stars: "★★★★☆", rating: 4.2 },
+  { id: 3,  emoji: "🌿", name: "Organic Hamster Mix",       cat: "Food",        price: 499,  stars: "★★★★★", rating: 4.8 },
+  { id: 4,  emoji: "🐾", name: "Paw-Print Collar",          cat: "Accessories", price: 599, stars: "★★★★★", rating: 4.9 },
+  { id: 5,  emoji: "🎾", name: "Interactive Fetch Ball",    cat: "Toys",        price: 399,  stars: "★★★★★", rating: 4.7 },
+  { id: 6,  emoji: "🏡", name: "Orthopedic Pet Bed",        cat: "Accessories", price: 1599, stars: "★★★★☆", rating: 4.5 },
+  { id: 7,  emoji: "💊", name: "Daily Multivitamin Chews",  cat: "Medicine",    price: 1099, stars: "★★★★☆", rating: 4.3 },
+  { id: 8,  emoji: "🦮", name: "Retractable Dog Leash",     cat: "Accessories", price: 749, stars: "★★★★★", rating: 4.8 },
+  { id: 9,  emoji: "🧸", name: "Catnip Plush Mouse",        cat: "Toys",        price: 299,  stars: "★★★★☆", rating: 4.1 },
+  { id: 10, emoji: "💉", name: "Flea & Tick Drops",         cat: "Medicine",    price: 1399, stars: "★★★★★", rating: 4.9 },
+  { id: 11, emoji: "🐠", name: "Tropical Fish Flakes",      cat: "Food",        price: 199,  stars: "★★★★☆", rating: 4.0 },
+  { id: 12, emoji: "🛁", name: "Gentle Pet Shampoo",        cat: "Accessories", price: 549, stars: "★★★★★", rating: 4.7 },
 ];
 
 const categories = ["All", "Food", "Toys", "Accessories", "Medicine"];
@@ -75,7 +75,7 @@ export default function Products() {
                     <p className="product-star">
                       {p.stars} ({p.rating})
                     </p>
-                    <p className="product-price">${p.price.toFixed(2)}</p>
+                    <p className="product-price">₹{p.price.toLocaleString('en-IN')}</p>
                     <div className="product-actions">
                       <button className="btn btn-primary btn-sm" style={{ flex: 1 }}>
                         Add to Cart
