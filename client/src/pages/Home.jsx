@@ -57,9 +57,9 @@ const services = [
 ];
 
 const doctors = [
-  { id: 1, avatar: "👨‍⚕️", name: "Dr. Samuel Rivera", spec: "General Veterinarian", exp: "12 yrs exp", rating: "★★★★★ 4.9", avail: "Mon–Fri" },
-  { id: 2, avatar: "👩‍⚕️", name: "Dr. Priya Nair", spec: "Animal Surgeon", exp: "9 yrs exp", rating: "★★★★★ 4.8", avail: "Mon–Sat" },
-  { id: 3, avatar: "👨‍⚕️", name: "Dr. James Okafor", spec: "Pet Behaviourist", exp: "7 yrs exp", rating: "★★★★☆ 4.6", avail: "Tue–Sat" },
+  { id: 1, avatar: "👨‍⚕️", name: "Dr. doctor1", spec: "General Veterinarian", exp: "12 yrs exp", rating: "★★★★★ 4.9", avail: "Mon–Fri" },
+  { id: 2, avatar: "👩‍⚕️", name: "Dr. doctor2", spec: "Animal Surgeon", exp: "9 yrs exp", rating: "★★★★★ 4.8", avail: "Mon–Sat" },
+  { id: 3, avatar: "👨‍⚕️", name: "Dr. doctor3", spec: "Pet Behaviourist", exp: "7 yrs exp", rating: "★★★★☆ 4.6", avail: "Tue–Sat" },
 ];
 
 const heroSlides = [
