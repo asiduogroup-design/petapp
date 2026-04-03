@@ -93,15 +93,15 @@ export default function DoctorsAppointment() {
               <div className="form-grid">
                 <div className="form-group">
                   <label>Your Full Name *</label>
-                  <input name="name" value={form.name} onChange={change} placeholder="John Doe" required />
+                  <input name="name" value={form.name} onChange={change} placeholder="Kalyan" required />
                 </div>
                 <div className="form-group">
                   <label>Phone Number *</label>
-                  <input name="phone" type="tel" value={form.phone} onChange={change} placeholder="+1 555 000 0000" required />
+                  <input name="phone" type="tel" value={form.phone} onChange={change} placeholder="+91 0000000000" required />
                 </div>
                 <div className="form-group">
                   <label>Email Address *</label>
-                  <input name="email" type="email" value={form.email} onChange={change} placeholder="john@example.com" required />
+                  <input name="email" type="email" value={form.email} onChange={change} placeholder="kalyan@example.com" required />
                 </div>
                 <div className="form-group">
                   <label>Pet's Name *</label>
