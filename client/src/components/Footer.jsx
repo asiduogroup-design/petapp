@@ -18,8 +18,14 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Link to="/" className="nav-logo">
-              <span className="nav-logo-icon">🐾</span>
+            <Link to="/" className="nav-logo" aria-label="Kalyan Pet Shop">
+              <img
+                src="https://res.cloudinary.com/dlx9tnj7p/image/upload/v1775200169/Kalyaan_Pet_Shop_logo_design_qxfec5.png"
+                alt="Kalyan Pet Shop"
+                className="nav-logo-image"
+                loading="eager"
+                referrerPolicy="no-referrer"
+              />
               <span className="nav-logo-text">PetCare</span>
             </Link>
             <p>Your one-stop destination for premium pet products, expert care, and happy pets.</p>
