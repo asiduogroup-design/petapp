@@ -6,10 +6,15 @@ import Home from "./pages/Home";
 import Products from "./pages/Products";
 import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
+
 import LoginRegister from "./pages/LoginRegister";
 import UserProfile from "./pages/UserProfile";
 
 function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
+import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/AdminDashboard";
+
+function Layout({ isLoggedIn, onLogin, onLogout }) {
   const { pathname } = useLocation();
 
   return (
@@ -36,6 +41,8 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
           path="/user/appointments"
           element={<UserProfile isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
         />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
       {pathname !== "/login" && <Footer />}
     </>
@@ -54,6 +61,9 @@ export default function App() {
 
   const handleLogout = () => {
     setAuthToken("");
+    localStorage.removeItem("petapp_logged_in");
+    localStorage.removeItem("petapp_token");
+    setIsLoggedIn(false);
     setUser(null);
   };
 

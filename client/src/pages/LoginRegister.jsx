@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiRequest } from "../lib/api";
 
+import { useState } from "react";
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
+import { Link } from "react-router-dom";
+
 const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
 
@@ -35,6 +40,8 @@ export default function LoginRegister({ onLogin }) {
     const timer = window.setTimeout(resetLoginForm, 120);
     return () => window.clearTimeout(timer);
   }, [tab]);
+  const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const changeLogin = (e) => setLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const changeReg = (e) => setReg((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -61,6 +68,30 @@ export default function LoginRegister({ onLogin }) {
       setLoginError(error.message);
     } finally {
       setSubmitting(false);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(login),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLoginError(data.message || "Login failed");
+        setLoading(false);
+        return;
+      }
+      // Store JWT token and login flag
+      localStorage.setItem("petapp_logged_in", "true");
+      if (data.token) {
+        localStorage.setItem("petapp_token", data.token);
+      }
+      if (onLogin) onLogin();
+      setLoginDone(true);
+    } catch (err) {
+      setLoginError("Network error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,6 +114,12 @@ export default function LoginRegister({ onLogin }) {
       await apiRequest("/auth/register", {
         method: "POST",
         body: {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/users/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           name: reg.name,
           email: reg.email,
           phone: reg.phone,
@@ -94,6 +131,19 @@ export default function LoginRegister({ onLogin }) {
       setRegError(error.message);
     } finally {
       setSubmitting(false);
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRegError(data.message || "Registration failed");
+        setLoading(false);
+        return;
+      }
+      setRegDone(true);
+    } catch (err) {
+      setRegError("Network error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,6 +190,7 @@ export default function LoginRegister({ onLogin }) {
             loginDone ? (
               <div style={{ textAlign: "center", padding: "1rem 0" }}>
                 <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>✓</div>
+                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>705</div>
                 <h3>Welcome back!</h3>
                 <p style={{ color: "var(--text-muted)", marginTop: "0.4rem" }}>
                   You are successfully logged in.
@@ -194,6 +245,8 @@ export default function LoginRegister({ onLogin }) {
                   </div>
                   <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
                     {submitting ? "Signing In..." : "Sign In →"}
+                  <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+                    {loading ? "Signing In..." : "Sign In →"}
                   </button>
                 </form>
                 <p className="auth-footer">
@@ -295,6 +348,8 @@ export default function LoginRegister({ onLogin }) {
                 )}
                 <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
                   {submitting ? "Creating Account..." : "Create Account →"}
+                <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+                  {loading ? "Creating..." : "Create Account →"}
                 </button>
               </form>
               <p className="auth-footer">
