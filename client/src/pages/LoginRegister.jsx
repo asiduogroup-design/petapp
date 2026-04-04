@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+
+import { useState } from "react";
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
+import { Link } from "react-router-dom";
 
 const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
@@ -12,46 +15,43 @@ export default function LoginRegister({ onLogin }) {
   const [loginDone, setLoginDone] = useState(false);
   const [regDone, setRegDone] = useState(false);
   const [regError, setRegError] = useState("");
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
-
-  const resetLoginForm = () => {
-    setLogin(blankLogin);
-    if (emailRef.current) {
-      emailRef.current.value = "";
-    }
-    if (passwordRef.current) {
-      passwordRef.current.value = "";
-    }
-  };
-
-  useEffect(() => {
-    if (tab !== "login") return;
-
-    resetLoginForm();
-    const timer = window.setTimeout(resetLoginForm, 120);
-    return () => window.clearTimeout(timer);
-  }, [tab]);
+  const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const changeLogin = (e) => setLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const changeReg = (e) => setReg((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const submitLogin = (e) => {
+  const submitLogin = async (e) => {
     e.preventDefault();
-    const storedUser = localStorage.getItem("petapp_user");
-    const parsedUser = storedUser
-      ? JSON.parse(storedUser)
-      : { name: "Kalyan", email: login.email, phone: "+91 0000000000" };
-    localStorage.setItem("petapp_logged_in", "true");
-    if (onLogin) {
-      onLogin(parsedUser);
+    setLoginError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(login),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLoginError(data.message || "Login failed");
+        setLoading(false);
+        return;
+      }
+      // Store JWT token and login flag
+      localStorage.setItem("petapp_logged_in", "true");
+      if (data.token) {
+        localStorage.setItem("petapp_token", data.token);
+      }
+      if (onLogin) onLogin();
+      setLoginDone(true);
+    } catch (err) {
+      setLoginError("Network error");
+    } finally {
+      setLoading(false);
     }
-    resetLoginForm();
-    setLoginDone(true);
-    navigate("/user");
   };
 
-  const submitReg = (e) => {
+  const submitReg = async (e) => {
     e.preventDefault();
     setRegError("");
     if (reg.password.length < 8) {
@@ -62,15 +62,30 @@ export default function LoginRegister({ onLogin }) {
       setRegError("Passwords do not match.");
       return;
     }
-    localStorage.setItem(
-      "petapp_user",
-      JSON.stringify({
-        name: reg.name,
-        email: reg.email,
-        phone: reg.phone || "+91 0000000000",
-      })
-    );
-    setRegDone(true);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/users/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: reg.name,
+          email: reg.email,
+          phone: reg.phone,
+          password: reg.password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRegError(data.message || "Registration failed");
+        setLoading(false);
+        return;
+      }
+      setRegDone(true);
+    } catch (err) {
+      setRegError("Network error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const switchTab = (t) => {
@@ -113,7 +128,7 @@ export default function LoginRegister({ onLogin }) {
           {tab === "login" ? (
             loginDone ? (
               <div style={{ textAlign: "center", padding: "1rem 0" }}>
-                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>✅</div>
+                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>705</div>
                 <h3>Welcome back!</h3>
                 <p style={{ color: "var(--text-muted)", marginTop: "0.4rem" }}>
                   You are successfully logged in.
@@ -153,6 +168,11 @@ export default function LoginRegister({ onLogin }) {
                       required
                     />
                   </div>
+                  {loginError && (
+                    <p style={{ color: "var(--red)", fontSize: "0.9rem", fontWeight: 600 }}>
+                      {loginError}
+                    </p>
+                  )}
                   <div style={{ textAlign: "right", marginTop: "-0.25rem" }}>
                     <a
                       href="#"
@@ -161,8 +181,8 @@ export default function LoginRegister({ onLogin }) {
                       Forgot password?
                     </a>
                   </div>
-                  <button type="submit" className="btn btn-primary btn-block">
-                    Sign In →
+                  <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+                    {loading ? "Signing In..." : "Sign In →"}
                   </button>
                 </form>
                 <p className="auth-footer">
@@ -262,8 +282,8 @@ export default function LoginRegister({ onLogin }) {
                     {regError}
                   </p>
                 )}
-                <button type="submit" className="btn btn-primary btn-block">
-                  Create Account →
+                <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+                  {loading ? "Creating..." : "Create Account →"}
                 </button>
               </form>
               <p className="auth-footer">
