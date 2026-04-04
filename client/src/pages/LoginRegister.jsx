@@ -26,6 +26,7 @@ export default function LoginRegister({ onLogin }) {
     if (onLogin) {
       onLogin(parsedUser);
     }
+    setLogin(blankLogin);
     setLoginDone(true);
     navigate("/user");
   };
