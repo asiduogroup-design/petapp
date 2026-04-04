@@ -29,7 +29,8 @@ export default function Navbar({ isLoggedIn, onLogout }) {
         return;
       }
       try {
-        const res = await fetch("/api/users/me", {
+        const API_BASE = import.meta.env.VITE_API_URL || "";
+        const res = await fetch(`${API_BASE}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error();

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
 import { Link } from "react-router-dom";
 
 export default function AdminPage() {
@@ -15,7 +17,7 @@ export default function AdminPage() {
         return;
       }
       try {
-        const res = await fetch("/api/users/me", {
+        const res = await fetch(`${API_BASE}/api/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -1,5 +1,7 @@
 
 import { useState } from "react";
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
 import { Link } from "react-router-dom";
 
 const blankLogin = { email: "", password: "" };
@@ -23,7 +25,7 @@ export default function LoginRegister({ onLogin }) {
     setLoginError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/users/login", {
+      const res = await fetch(`${API_BASE}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(login),
@@ -61,7 +63,7 @@ export default function LoginRegister({ onLogin }) {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/users/register", {
+      const res = await fetch(`${API_BASE}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

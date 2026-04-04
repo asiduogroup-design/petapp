@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -14,7 +16,7 @@ export default function Profile() {
         return;
       }
       try {
-        const res = await fetch("/api/users/me", {
+        const res = await fetch(`${API_BASE}/api/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

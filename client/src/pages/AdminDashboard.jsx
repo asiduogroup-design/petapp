@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+
+// Use VITE_API_URL from .env, fallback to relative path for local dev
+const API_BASE = import.meta.env.VITE_API_URL || "";
 import { FaUser, FaBox, FaClipboardList, FaCheck, FaBan, FaTrash, FaEye } from "react-icons/fa";
 
 const SIDEBAR = [
@@ -28,7 +31,7 @@ export default function AdminDashboard() {
       setError("");
       try {
         // Users
-        const res = await fetch("/api/users/all", { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch(`${API_BASE}/api/users/all`, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) throw new Error("Unauthorized or error fetching users");
         const usersData = await res.json();
         setUsers(usersData);
@@ -39,12 +42,12 @@ export default function AdminDashboard() {
           blocked: usersData.filter(u => u.isBlocked).length,
         }));
         // Products (pets)
-        const resP = await fetch("/api/pets");
+        const resP = await fetch(`${API_BASE}/api/pets`);
         const productsData = await resP.json();
         setProducts(productsData);
         setStats(s => ({ ...s, products: productsData.length }));
         // Orders
-        const resO = await fetch("/api/orders", { headers: { Authorization: `Bearer ${token}` } });
+        const resO = await fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
         if (resO.ok) {
           const ordersData = await resO.json();
           setOrders(ordersData);
@@ -63,7 +66,7 @@ export default function AdminDashboard() {
   // User actions (same as before)
   async function handleUserAction(id, action, role) {
     setActionMsg("");
-    let url = `/api/users/${id}`;
+    let url = `${API_BASE}/api/users/${id}`;
     let method = "PATCH";
     let body = undefined;
     if (action === "block") url += "/block";
@@ -82,7 +85,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       setActionMsg(data.message);
       // Refresh users
-      const res2 = await fetch("/api/users/all", { headers: { Authorization: `Bearer ${token}` } });
+      const res2 = await fetch(`${API_BASE}/api/users/all`, { headers: { Authorization: `Bearer ${token}` } });
       setUsers(await res2.json());
     } catch (err) {
       setActionMsg("Action failed");
