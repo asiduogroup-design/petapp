@@ -1,8 +1,6 @@
-
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-const API_BASE = import.meta.env.VITE_API_URL || "";
+import { apiRequest } from "../lib/api";
 
 const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
@@ -14,9 +12,29 @@ export default function LoginRegister({ onLogin }) {
   const [reg, setReg] = useState(blankReg);
   const [loginDone, setLoginDone] = useState(false);
   const [regDone, setRegDone] = useState(false);
-  const [regError, setRegError] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [regError, setRegError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const resetLoginForm = () => {
+    setLogin(blankLogin);
+    if (emailRef.current) {
+      emailRef.current.value = "";
+    }
+    if (passwordRef.current) {
+      passwordRef.current.value = "";
+    }
+  };
+
+  useEffect(() => {
+    if (tab !== "login") return;
+
+    resetLoginForm();
+    const timer = window.setTimeout(resetLoginForm, 120);
+    return () => window.clearTimeout(timer);
+  }, [tab]);
 
   const changeLogin = (e) => setLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const changeReg = (e) => setReg((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -24,79 +42,71 @@ export default function LoginRegister({ onLogin }) {
   const submitLogin = async (e) => {
     e.preventDefault();
     setLoginError("");
-    setLoading(true);
+    setSubmitting(true);
+
     try {
-      const res = await fetch(`${API_BASE}/api/users/login`, {
+      const data = await apiRequest("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(login),
+        body: login,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setLoginError(data.message || "Login failed");
-        setLoading(false);
-        return;
+
+      if (onLogin) {
+        onLogin(data);
       }
-      // Store JWT token and login flag
-      localStorage.setItem("petapp_logged_in", "true");
-      if (data.token) {
-        localStorage.setItem("petapp_token", data.token);
-      }
-      if (onLogin) onLogin();
+
+      resetLoginForm();
       setLoginDone(true);
-      // Optionally redirect after login
-      setTimeout(() => navigate("/"), 1200);
-    } catch (err) {
-      setLoginError("Network error");
+      navigate("/user");
+    } catch (error) {
+      setLoginError(error.message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   const submitReg = async (e) => {
     e.preventDefault();
     setRegError("");
+
     if (reg.password.length < 8) {
       setRegError("Password must be at least 8 characters.");
       return;
     }
+
     if (reg.password !== reg.confirm) {
       setRegError("Passwords do not match.");
       return;
     }
-    setLoading(true);
+
+    setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/users/register`, {
+      await apiRequest("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: reg.name,
           email: reg.email,
           phone: reg.phone,
           password: reg.password,
-        }),
+        },
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setRegError(data.message || "Registration failed");
-        setLoading(false);
-        return;
-      }
       setRegDone(true);
-      // Optionally redirect after registration
-      setTimeout(() => switchTab("login"), 1200);
-    } catch (err) {
-      setRegError("Network error");
+    } catch (error) {
+      setRegError(error.message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const switchTab = (t) => {
-    setTab(t);
+  const switchTab = (nextTab) => {
+    setTab(nextTab);
     setLoginDone(false);
     setRegDone(false);
+    setLoginError("");
     setRegError("");
+
+    if (nextTab === "login") {
+      resetLoginForm();
+    }
   };
 
   return (
@@ -129,7 +139,7 @@ export default function LoginRegister({ onLogin }) {
           {tab === "login" ? (
             loginDone ? (
               <div style={{ textAlign: "center", padding: "1rem 0" }}>
-                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>705</div>
+                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>✓</div>
                 <h3>Welcome back!</h3>
                 <p style={{ color: "var(--text-muted)", marginTop: "0.4rem" }}>
                   You are successfully logged in.
@@ -142,26 +152,30 @@ export default function LoginRegister({ onLogin }) {
               <>
                 <h2 className="auth-title">Sign In</h2>
                 <p className="auth-sub">Enter your credentials to access your account</p>
-                <form className="auth-form" onSubmit={submitLogin}>
+                <form className="auth-form" onSubmit={submitLogin} autoComplete="off">
                   <div className="form-group">
                     <label>Email Address</label>
                     <input
+                      ref={emailRef}
                       name="email"
                       type="email"
                       value={login.email}
                       onChange={changeLogin}
                       placeholder="you@example.com"
+                      autoComplete="off"
                       required
                     />
                   </div>
                   <div className="form-group">
                     <label>Password</label>
                     <input
+                      ref={passwordRef}
                       name="password"
                       type="password"
                       value={login.password}
                       onChange={changeLogin}
-                      placeholder="••••••••"
+                      placeholder="........"
+                      autoComplete="new-password"
                       required
                     />
                   </div>
@@ -178,8 +192,8 @@ export default function LoginRegister({ onLogin }) {
                       Forgot password?
                     </a>
                   </div>
-                  <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-                    {loading ? "Signing In..." : "Sign In →"}
+                  <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                    {submitting ? "Signing In..." : "Sign In →"}
                   </button>
                 </form>
                 <p className="auth-footer">
@@ -227,7 +241,7 @@ export default function LoginRegister({ onLogin }) {
                     name="name"
                     value={reg.name}
                     onChange={changeReg}
-                    placeholder="Jane Doe"
+                    placeholder="Your Name"
                     required
                   />
                 </div>
@@ -249,7 +263,7 @@ export default function LoginRegister({ onLogin }) {
                     type="tel"
                     value={reg.phone}
                     onChange={changeReg}
-                    placeholder="+1 555 000 0000"
+                    placeholder="+91 0000000000"
                   />
                 </div>
                 <div className="form-group">
@@ -279,8 +293,8 @@ export default function LoginRegister({ onLogin }) {
                     {regError}
                   </p>
                 )}
-                <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-                  {loading ? "Creating..." : "Create Account →"}
+                <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                  {submitting ? "Creating Account..." : "Create Account →"}
                 </button>
               </form>
               <p className="auth-footer">
