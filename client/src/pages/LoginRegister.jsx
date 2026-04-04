@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { apiRequest } from "../lib/api";
 
 import { useState } from "react";
 
@@ -14,7 +17,29 @@ export default function LoginRegister({ onLogin }) {
   const [reg, setReg] = useState(blankReg);
   const [loginDone, setLoginDone] = useState(false);
   const [regDone, setRegDone] = useState(false);
+  const [loginError, setLoginError] = useState("");
   const [regError, setRegError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const resetLoginForm = () => {
+    setLogin(blankLogin);
+    if (emailRef.current) {
+      emailRef.current.value = "";
+    }
+    if (passwordRef.current) {
+      passwordRef.current.value = "";
+    }
+  };
+
+  useEffect(() => {
+    if (tab !== "login") return;
+
+    resetLoginForm();
+    const timer = window.setTimeout(resetLoginForm, 120);
+    return () => window.clearTimeout(timer);
+  }, [tab]);
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,6 +49,25 @@ export default function LoginRegister({ onLogin }) {
   const submitLogin = async (e) => {
     e.preventDefault();
     setLoginError("");
+    setSubmitting(true);
+
+    try {
+      const data = await apiRequest("/auth/login", {
+        method: "POST",
+        body: login,
+      });
+
+      if (onLogin) {
+        onLogin(data);
+      }
+
+      resetLoginForm();
+      setLoginDone(true);
+      navigate("/user");
+    } catch (error) {
+      setLoginError(error.message);
+    } finally {
+      setSubmitting(false);
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/users/login`, {
@@ -54,14 +98,22 @@ export default function LoginRegister({ onLogin }) {
   const submitReg = async (e) => {
     e.preventDefault();
     setRegError("");
+
     if (reg.password.length < 8) {
       setRegError("Password must be at least 8 characters.");
       return;
     }
+
     if (reg.password !== reg.confirm) {
       setRegError("Passwords do not match.");
       return;
     }
+
+    setSubmitting(true);
+    try {
+      await apiRequest("/auth/register", {
+        method: "POST",
+        body: {
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/users/register`, {
@@ -72,6 +124,13 @@ export default function LoginRegister({ onLogin }) {
           email: reg.email,
           phone: reg.phone,
           password: reg.password,
+        },
+      });
+      setRegDone(true);
+    } catch (error) {
+      setRegError(error.message);
+    } finally {
+      setSubmitting(false);
         }),
       });
       const data = await res.json();
@@ -88,12 +147,14 @@ export default function LoginRegister({ onLogin }) {
     }
   };
 
-  const switchTab = (t) => {
-    setTab(t);
+  const switchTab = (nextTab) => {
+    setTab(nextTab);
     setLoginDone(false);
     setRegDone(false);
+    setLoginError("");
     setRegError("");
-    if (t === "login") {
+
+    if (nextTab === "login") {
       resetLoginForm();
     }
   };
@@ -128,6 +189,7 @@ export default function LoginRegister({ onLogin }) {
           {tab === "login" ? (
             loginDone ? (
               <div style={{ textAlign: "center", padding: "1rem 0" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>✓</div>
                 <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>705</div>
                 <h3>Welcome back!</h3>
                 <p style={{ color: "var(--text-muted)", marginTop: "0.4rem" }}>
@@ -181,6 +243,8 @@ export default function LoginRegister({ onLogin }) {
                       Forgot password?
                     </a>
                   </div>
+                  <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                    {submitting ? "Signing In..." : "Sign In →"}
                   <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
                     {loading ? "Signing In..." : "Sign In →"}
                   </button>
@@ -282,6 +346,8 @@ export default function LoginRegister({ onLogin }) {
                     {regError}
                   </p>
                 )}
+                <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                  {submitting ? "Creating Account..." : "Create Account →"}
                 <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
                   {loading ? "Creating..." : "Create Account →"}
                 </button>
