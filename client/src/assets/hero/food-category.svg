@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Dog eating food</title>
+  <desc id="desc">A dog beside a food bowl to represent pet food products.</desc>
+  <rect width="160" height="160" rx="28" fill="#eefcf8"/>
+  <ellipse cx="82" cy="132" rx="54" ry="10" fill="#d1fae5"/>
+  <circle cx="48" cy="54" r="18" fill="#c08457"/>
+  <path d="M36 42l-10-12 4 18z" fill="#8b5e3c"/>
+  <path d="M60 42l12-10-4 18z" fill="#8b5e3c"/>
+  <circle cx="43" cy="53" r="2.8" fill="#111827"/>
+  <circle cx="57" cy="53" r="2.8" fill="#111827"/>
+  <ellipse cx="50" cy="62" rx="7" ry="5" fill="#111827"/>
+  <path d="M40 70c7 8 23 8 30 0v26H36V70z" fill="#d4a373"/>
+  <rect x="28" y="92" width="12" height="30" rx="6" fill="#c08457"/>
+  <rect x="66" y="92" width="12" height="30" rx="6" fill="#c08457"/>
+  <path d="M77 80c10 4 16 12 16 22v20h-10v-18c0-6-3-11-9-14z" fill="#8b5e3c"/>
+  <path d="M92 89h30c0 20-7 31-15 31s-15-11-15-31z" fill="#0f766e"/>
+  <path d="M88 84h38a6 6 0 0 1 6 6H82a6 6 0 0 1 6-6z" fill="#134e4a"/>
+  <circle cx="98" cy="78" r="5" fill="#f59e0b"/>
+  <circle cx="108" cy="75" r="5" fill="#fbbf24"/>
+  <circle cx="118" cy="79" r="5" fill="#f59e0b"/>
+</svg>
