@@ -8,6 +8,7 @@ import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
 
 import LoginRegister from "./pages/LoginRegister";
+import UserProfile from "./pages/UserProfile";
 
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -33,20 +34,29 @@ function Layout({ isLoggedIn, onLogin, onLogout }) {
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem("petapp_logged_in") === "true");
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("petapp_user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const handleLogin = () => {
+  const handleLogin = (userData) => {
     setIsLoggedIn(true);
+    if (userData) {
+      localStorage.setItem("petapp_user", JSON.stringify(userData));
+      setUser(userData);
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("petapp_logged_in");
     localStorage.removeItem("petapp_token");
     setIsLoggedIn(false);
+    setUser(null);
   };
 
   return (
     <BrowserRouter>
-      <Layout isLoggedIn={isLoggedIn} onLogin={handleLogin} onLogout={handleLogout} />
+      <Layout isLoggedIn={isLoggedIn} user={user} onLogin={handleLogin} onLogout={handleLogout} />
     </BrowserRouter>
   );
 }

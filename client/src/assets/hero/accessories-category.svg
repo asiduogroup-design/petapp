@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Pet accessories</title>
+  <desc id="desc">A collar, leash, and tag to represent pet accessories.</desc>
+  <rect width="160" height="160" rx="28" fill="#f8fafc"/>
+  <ellipse cx="82" cy="132" rx="54" ry="10" fill="#e2e8f0"/>
+  <path d="M34 92c0-22 18-40 40-40h36v18H74c-12 0-22 10-22 22s10 22 22 22h36v18H74c-22 0-40-18-40-40z" fill="#0f766e"/>
+  <circle cx="74" cy="92" r="10" fill="#f8fafc"/>
+  <circle cx="74" cy="92" r="4" fill="#94a3b8"/>
+  <circle cx="110" cy="64" r="7" fill="#f59e0b"/>
+  <circle cx="96" cy="64" r="4" fill="#bbf7d0"/>
+  <path d="M106 96c16 0 24 11 24 22 0 8-4 13-10 13-9 0-11-8-11-13 0-6 3-11 7-14" fill="none" stroke="#0ea5e9" stroke-width="8" stroke-linecap="round"/>
+  <path d="M112 108l-16 14-9-10 18-15z" fill="#f59e0b"/>
+  <path d="M122 48v22" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+  <path d="M112 70h20v18c0 8-4 16-10 20-6-4-10-12-10-20V70z" fill="#fde68a"/>
+  <circle cx="122" cy="78" r="3.5" fill="#f59e0b"/>
+</svg>

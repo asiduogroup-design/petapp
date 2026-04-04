@@ -8,6 +8,9 @@ const clinicDetails = {
   hours: "Mon-Sun: 9:00 AM - 10:00 PM",
   specialties: "Pet Clinic, Veterinary Care, Pet Food, Dog Accessories",
   mapUrl: "https://maps.google.com/?q=16.5416181,80.6375518",
+  phone: "+91 98765 43210",
+  whatsappNumber: "919876543210",
+  email: "contact@kalyanpetcare.com",
   listingUrl:
     "https://www.justdial.com/Vijayawada/Kalyan-Pets-Clinic-Near-Sai-Baba-Temple-Beside-Apollo-Pharmacy-Singh-Nagar/0866PX866-X866-230803161734-T1Q8_BZDET",
 };
@@ -30,10 +33,21 @@ export default function Footer() {
             </Link>
             <p>Your one-stop destination for premium pet products, expert care, and happy pets.</p>
             <div className="footer-socials">
-              <a href="#" className="footer-social-link" aria-label="Facebook">📘</a>
-              <a href="#" className="footer-social-link" aria-label="Instagram">📸</a>
-              <a href="#" className="footer-social-link" aria-label="Twitter">🐦</a>
-              <a href="#" className="footer-social-link" aria-label="YouTube">▶️</a>
+              <a href={`tel:${clinicDetails.phone.replace(/\s+/g, "")}`} className="footer-social-link" aria-label="Phone">
+                📞
+              </a>
+              <a
+                href={`https://wa.me/${clinicDetails.whatsappNumber}`}
+                className="footer-social-link"
+                aria-label="WhatsApp"
+                target="_blank"
+                rel="noreferrer"
+              >
+                💬
+              </a>
+              <a href={`mailto:${clinicDetails.email}`} className="footer-social-link" aria-label="Email">
+                ✉️
+              </a>
             </div>
           </div>
 

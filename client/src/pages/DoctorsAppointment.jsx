@@ -1,20 +1,35 @@
 import { useState } from "react";
 
 const doctors = [
-  { id: 1, avatar: "👨‍⚕️", name: "Dr. doctor1",  spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon–Fri",  fee: "$60" },
-  { id: 2, avatar: "👩‍⚕️", name: "Dr. doctor2",     spec: "Animal Surgeon",       exp: "9 yrs",  rating: "★★★★★ 4.8", avail: "Mon–Sat",  fee: "$80" },
-  { id: 3, avatar: "👨‍⚕️", name: "Dr. doctor3",   spec: "Pet Behaviourist",     exp: "7 yrs",  rating: "★★★★☆ 4.6", avail: "Tue–Sat",  fee: "$65" },
-  { id: 4, avatar: "👩‍⚕️", name: "Dr. doctor4",     spec: "Dermatologist",        exp: "11 yrs", rating: "★★★★★ 4.9", avail: "Mon–Thu",  fee: "$70" },
-  { id: 5, avatar: "👨‍⚕️", name: "Dr. doctor5",  spec: "Dental Specialist",    exp: "8 yrs",  rating: "★★★★☆ 4.5", avail: "Wed–Sun",  fee: "$75" },
-  { id: 6, avatar: "👩‍⚕️", name: "Dr. doctor6",   spec: "Nutritionist",         exp: "6 yrs",  rating: "★★★★★ 4.7", avail: "Mon–Fri",  fee: "$55" },
+  { id: 1, avatar: "👨‍⚕️", name: "Dr. doctor1", spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon-Fri", fee: "$60" },
+  { id: 2, avatar: "👩‍⚕️", name: "Dr. doctor2", spec: "Animal Surgeon", exp: "9 yrs", rating: "★★★★★ 4.8", avail: "Mon-Sat", fee: "$80" },
+  { id: 3, avatar: "👨‍⚕️", name: "Dr. doctor3", spec: "Pet Behaviourist", exp: "7 yrs", rating: "★★★★☆ 4.6", avail: "Tue-Sat", fee: "$65" },
+  { id: 4, avatar: "👩‍⚕️", name: "Dr. doctor4", spec: "Dermatologist", exp: "11 yrs", rating: "★★★★★ 4.9", avail: "Mon-Thu", fee: "$70" },
+  { id: 5, avatar: "👨‍⚕️", name: "Dr. doctor5", spec: "Dental Specialist", exp: "8 yrs", rating: "★★★★☆ 4.5", avail: "Wed-Sun", fee: "$75" },
+  { id: 6, avatar: "👩‍⚕️", name: "Dr. doctor6", spec: "Nutritionist", exp: "6 yrs", rating: "★★★★★ 4.7", avail: "Mon-Fri", fee: "$55" },
 ];
 
 const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
 
-const blank = { name: "", phone: "", email: "", petName: "", petType: "", doctor: "", date: "", time: "", issue: "" };
+const getInitialForm = () => {
+  const storedUser = localStorage.getItem("petapp_user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
+  return {
+    name: user?.name || "",
+    phone: user?.phone || "",
+    email: user?.email || "",
+    petName: "",
+    petType: "",
+    doctor: "",
+    date: "",
+    time: "",
+    issue: "",
+  };
+};
 
 export default function DoctorsAppointment() {
-  const [form, setForm] = useState(blank);
+  const [form, setForm] = useState(getInitialForm);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,16 +38,28 @@ export default function DoctorsAppointment() {
   const submit = (e) => {
     e.preventDefault();
     setError("");
+
     if (!form.doctor) {
       setError("Please select a doctor from the list above or the dropdown.");
       return;
     }
+
+    const storedAppointments = localStorage.getItem("petapp_appointments");
+    const appointments = storedAppointments ? JSON.parse(storedAppointments) : [];
+    const nextAppointment = {
+      id: `appt-${Date.now()}`,
+      ...form,
+      status: "Booked",
+      bookedAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem("petapp_appointments", JSON.stringify([nextAppointment, ...appointments]));
     setSubmitted(true);
-    setForm(blank);
+    setForm(getInitialForm());
   };
 
   const selectDoctor = (name, spec) => {
-    setForm((prev) => ({ ...prev, doctor: `${name} — ${spec}` }));
+    setForm((prev) => ({ ...prev, doctor: `${name} - ${spec}` }));
     document.getElementById("booking-form").scrollIntoView({ behavior: "smooth" });
   };
 
@@ -41,7 +68,7 @@ export default function DoctorsAppointment() {
       <div className="page-banner">
         <div className="container">
           <h1>🩺 Book an Appointment</h1>
-          <p>Connect with certified veterinary professionals — fast, easy, and online.</p>
+          <p>Connect with certified veterinary professionals - fast, easy, and online.</p>
         </div>
       </div>
 
@@ -62,10 +89,7 @@ export default function DoctorsAppointment() {
                 <p style={{ fontWeight: 700, color: "var(--primary)", marginBottom: "1rem" }}>
                   Consultation: {d.fee}
                 </p>
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => selectDoctor(d.name, d.spec)}
-                >
+                <button className="btn btn-primary btn-sm" onClick={() => selectDoctor(d.name, d.spec)}>
                   Select &amp; Book
                 </button>
               </div>
@@ -83,7 +107,7 @@ export default function DoctorsAppointment() {
             <div className="success-box">
               ✅{" "}
               <span>
-                <strong>Appointment booked!</strong> Our team will contact you shortly to confirm.
+                <strong>Appointment booked!</strong> Your booking is now saved in your profile history.
               </span>
             </div>
           )}
@@ -93,15 +117,15 @@ export default function DoctorsAppointment() {
               <div className="form-grid">
                 <div className="form-group">
                   <label>Your Full Name *</label>
-                  <input name="name" value={form.name} onChange={change} placeholder="John Doe" required />
+                  <input name="name" value={form.name} onChange={change} placeholder="Kalyan" required />
                 </div>
                 <div className="form-group">
                   <label>Phone Number *</label>
-                  <input name="phone" type="tel" value={form.phone} onChange={change} placeholder="+1 555 000 0000" required />
+                  <input name="phone" type="tel" value={form.phone} onChange={change} placeholder="+91 0000000000" required />
                 </div>
                 <div className="form-group">
                   <label>Email Address *</label>
-                  <input name="email" type="email" value={form.email} onChange={change} placeholder="john@example.com" required />
+                  <input name="email" type="email" value={form.email} onChange={change} placeholder="kalyan@example.com" required />
                 </div>
                 <div className="form-group">
                   <label>Pet's Name *</label>
@@ -124,8 +148,8 @@ export default function DoctorsAppointment() {
                   <select name="doctor" value={form.doctor} onChange={change} required>
                     <option value="">Choose a doctor</option>
                     {doctors.map((d) => (
-                      <option key={d.id}>
-                        {d.name} — {d.spec}
+                      <option key={d.id} value={`${d.name} - ${d.spec}`}>
+                        {d.name} - {d.spec}
                       </option>
                     ))}
                   </select>
