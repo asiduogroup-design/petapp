@@ -182,7 +182,7 @@ export default function LoginRegister({ onLogin }) {
                     name="name"
                     value={reg.name}
                     onChange={changeReg}
-                    placeholder="Jane Doe"
+                    placeholder="Your Name"
                     required
                   />
                 </div>
@@ -204,7 +204,7 @@ export default function LoginRegister({ onLogin }) {
                     type="tel"
                     value={reg.phone}
                     onChange={changeReg}
-                    placeholder="+1 555 000 0000"
+                    placeholder="+91 0000000000"
                   />
                 </div>
                 <div className="form-group">
