@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { apiRequest } from "../lib/api";
 
 const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
@@ -11,7 +12,9 @@ export default function LoginRegister({ onLogin }) {
   const [reg, setReg] = useState(blankReg);
   const [loginDone, setLoginDone] = useState(false);
   const [regDone, setRegDone] = useState(false);
+  const [loginError, setLoginError] = useState("");
   const [regError, setRegError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
@@ -36,49 +39,72 @@ export default function LoginRegister({ onLogin }) {
   const changeLogin = (e) => setLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const changeReg = (e) => setReg((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const submitLogin = (e) => {
+  const submitLogin = async (e) => {
     e.preventDefault();
-    const storedUser = localStorage.getItem("petapp_user");
-    const parsedUser = storedUser
-      ? JSON.parse(storedUser)
-      : { name: "Kalyan", email: login.email, phone: "+91 0000000000" };
-    localStorage.setItem("petapp_logged_in", "true");
-    if (onLogin) {
-      onLogin(parsedUser);
+    setLoginError("");
+    setSubmitting(true);
+
+    try {
+      const data = await apiRequest("/auth/login", {
+        method: "POST",
+        body: login,
+      });
+
+      if (onLogin) {
+        onLogin(data);
+      }
+
+      resetLoginForm();
+      setLoginDone(true);
+      navigate("/user");
+    } catch (error) {
+      setLoginError(error.message);
+    } finally {
+      setSubmitting(false);
     }
-    resetLoginForm();
-    setLoginDone(true);
-    navigate("/user");
   };
 
-  const submitReg = (e) => {
+  const submitReg = async (e) => {
     e.preventDefault();
     setRegError("");
+
     if (reg.password.length < 8) {
       setRegError("Password must be at least 8 characters.");
       return;
     }
+
     if (reg.password !== reg.confirm) {
       setRegError("Passwords do not match.");
       return;
     }
-    localStorage.setItem(
-      "petapp_user",
-      JSON.stringify({
-        name: reg.name,
-        email: reg.email,
-        phone: reg.phone || "+91 0000000000",
-      })
-    );
-    setRegDone(true);
+
+    setSubmitting(true);
+    try {
+      await apiRequest("/auth/register", {
+        method: "POST",
+        body: {
+          name: reg.name,
+          email: reg.email,
+          phone: reg.phone,
+          password: reg.password,
+        },
+      });
+      setRegDone(true);
+    } catch (error) {
+      setRegError(error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const switchTab = (t) => {
-    setTab(t);
+  const switchTab = (nextTab) => {
+    setTab(nextTab);
     setLoginDone(false);
     setRegDone(false);
+    setLoginError("");
     setRegError("");
-    if (t === "login") {
+
+    if (nextTab === "login") {
       resetLoginForm();
     }
   };
@@ -113,7 +139,7 @@ export default function LoginRegister({ onLogin }) {
           {tab === "login" ? (
             loginDone ? (
               <div style={{ textAlign: "center", padding: "1rem 0" }}>
-                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>✅</div>
+                <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>✓</div>
                 <h3>Welcome back!</h3>
                 <p style={{ color: "var(--text-muted)", marginTop: "0.4rem" }}>
                   You are successfully logged in.
@@ -153,6 +179,11 @@ export default function LoginRegister({ onLogin }) {
                       required
                     />
                   </div>
+                  {loginError && (
+                    <p style={{ color: "var(--red)", fontSize: "0.9rem", fontWeight: 600 }}>
+                      {loginError}
+                    </p>
+                  )}
                   <div style={{ textAlign: "right", marginTop: "-0.25rem" }}>
                     <a
                       href="#"
@@ -161,8 +192,8 @@ export default function LoginRegister({ onLogin }) {
                       Forgot password?
                     </a>
                   </div>
-                  <button type="submit" className="btn btn-primary btn-block">
-                    Sign In →
+                  <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                    {submitting ? "Signing In..." : "Sign In →"}
                   </button>
                 </form>
                 <p className="auth-footer">
@@ -262,8 +293,8 @@ export default function LoginRegister({ onLogin }) {
                     {regError}
                   </p>
                 )}
-                <button type="submit" className="btn btn-primary btn-block">
-                  Create Account →
+                <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                  {submitting ? "Creating Account..." : "Create Account →"}
                 </button>
               </form>
               <p className="auth-footer">

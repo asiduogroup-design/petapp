@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../lib/api";
 
 const doctors = [
   { id: 1, avatar: "👨‍⚕️", name: "Dr. doctor1", spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon-Fri", fee: "$60" },
@@ -11,51 +13,66 @@ const doctors = [
 
 const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
 
-const getInitialForm = () => {
-  const storedUser = localStorage.getItem("petapp_user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
+const getInitialForm = (user) => ({
+  name: user?.name || "",
+  phone: user?.phone || "",
+  email: user?.email || "",
+  petName: "",
+  petType: "",
+  doctor: "",
+  date: "",
+  time: "",
+  issue: "",
+});
 
-  return {
-    name: user?.name || "",
-    phone: user?.phone || "",
-    email: user?.email || "",
-    petName: "",
-    petType: "",
-    doctor: "",
-    date: "",
-    time: "",
-    issue: "",
-  };
-};
-
-export default function DoctorsAppointment() {
-  const [form, setForm] = useState(getInitialForm);
+export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
+  const navigate = useNavigate();
+  const [form, setForm] = useState(() => getInitialForm(user));
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      name: user?.name || "",
+      phone: user?.phone || "",
+      email: user?.email || "",
+    }));
+  }, [user]);
 
   const change = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setError("");
+    setSubmitted(false);
 
     if (!form.doctor) {
       setError("Please select a doctor from the list above or the dropdown.");
       return;
     }
 
-    const storedAppointments = localStorage.getItem("petapp_appointments");
-    const appointments = storedAppointments ? JSON.parse(storedAppointments) : [];
-    const nextAppointment = {
-      id: `appt-${Date.now()}`,
-      ...form,
-      status: "Booked",
-      bookedAt: new Date().toISOString(),
-    };
+    if (!isLoggedIn || !authToken) {
+      setError("Please log in before booking an appointment.");
+      navigate("/login");
+      return;
+    }
 
-    localStorage.setItem("petapp_appointments", JSON.stringify([nextAppointment, ...appointments]));
-    setSubmitted(true);
-    setForm(getInitialForm());
+    setSubmitting(true);
+    try {
+      await apiRequest("/appointments", {
+        method: "POST",
+        token: authToken,
+        body: form,
+      });
+      setSubmitted(true);
+      setForm(getInitialForm(user));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const selectDoctor = (name, spec) => {
@@ -105,7 +122,7 @@ export default function DoctorsAppointment() {
 
           {submitted && (
             <div className="success-box">
-              ✅{" "}
+              ✓{" "}
               <span>
                 <strong>Appointment booked!</strong> Your booking is now saved in your profile history.
               </span>
@@ -188,8 +205,13 @@ export default function DoctorsAppointment() {
               {error && (
                 <p style={{ color: "var(--red)", marginTop: "0.75rem", fontWeight: 600 }}>{error}</p>
               )}
-              <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: "1.5rem" }}>
-                Confirm Appointment →
+              <button
+                type="submit"
+                className="btn btn-primary btn-block"
+                style={{ marginTop: "1.5rem" }}
+                disabled={submitting}
+              >
+                {submitting ? "Confirming Appointment..." : "Confirm Appointment →"}
               </button>
             </form>
           </div>

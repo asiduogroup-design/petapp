@@ -281,7 +281,7 @@ function ProductsSection() {
       <div className="container">
         <h2 className="section-title">Popular Products</h2>
         <p className="section-sub">Hand-picked essentials for happy, healthy pets</p>
-        <div className="products-grid">
+        <div className="products-grid home-products-grid">
           {products.map((p) => (
             <div key={p.id} className="product-card">
               <div className="product-img">{p.emoji}</div>
