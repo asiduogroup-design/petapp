@@ -85,16 +85,26 @@ export default function Navbar({ isLoggedIn, onLogout }) {
 
           <div className="nav-actions">
             {isLoggedIn ? (
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={() => {
-                  onLogout();
-                  setOpen(false);
-                }}
-              >
-                Logout
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    onLogout();
+                    setOpen(false);
+                  }}
+                >
+                  Logout
+                </button>
+                <Link
+                  to="/user"
+                  className="nav-profile-link"
+                  aria-label="User profile"
+                  onClick={() => setOpen(false)}
+                >
+                  👤
+                </Link>
+              </>
             ) : (
               <Link to="/login" className="btn btn-primary btn-sm" onClick={() => setOpen(false)}>
                 Login

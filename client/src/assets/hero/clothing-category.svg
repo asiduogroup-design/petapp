@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Dog wearing clothes</title>
+  <desc id="desc">A small dog wearing a sweater to represent pet clothing.</desc>
+  <rect width="160" height="160" rx="28" fill="#fff7ed"/>
+  <ellipse cx="82" cy="132" rx="54" ry="10" fill="#fde68a"/>
+  <circle cx="54" cy="54" r="17" fill="#d6a77a"/>
+  <path d="M43 44l-10-13 4 19z" fill="#a16207"/>
+  <path d="M65 44l12-11-4 18z" fill="#a16207"/>
+  <circle cx="49" cy="54" r="2.5" fill="#111827"/>
+  <circle cx="59" cy="54" r="2.5" fill="#111827"/>
+  <ellipse cx="54" cy="62" rx="6.5" ry="5" fill="#111827"/>
+  <path d="M46 72c7-5 25-5 32 0v20H42V72z" fill="#0d9488"/>
+  <path d="M42 72l-10 10 12 10V79z" fill="#115e59"/>
+  <path d="M78 79v13l12-10-10-10z" fill="#115e59"/>
+  <path d="M43 90h35v12H43z" fill="#99f6e4"/>
+  <path d="M42 102c7 3 29 3 36 0v18H42z" fill="#0f766e"/>
+  <path d="M48 94v28M60 94v28M72 94v28" stroke="#ccfbf1" stroke-width="3" stroke-linecap="round"/>
+  <rect x="44" y="118" width="10" height="10" rx="5" fill="#d6a77a"/>
+  <rect x="66" y="118" width="10" height="10" rx="5" fill="#d6a77a"/>
+  <path d="M78 96c12 5 18 14 18 25" stroke="#a16207" stroke-width="5" stroke-linecap="round" fill="none"/>
+</svg>

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import foodCategoryImage from "../assets/hero/food-category.svg";
+import toysCategoryImage from "../assets/hero/toys-category.svg";
+import medicinesCategoryImage from "../assets/hero/medicines-category.svg";
+import clothingCategoryImage from "../assets/hero/clothing-category.svg";
+import accessoriesCategoryImage from "../assets/hero/accessories-category.svg";
 
 const offers = [
   {
@@ -76,11 +81,11 @@ const heroSlides = [
     ],
     visualHeading: "Product Categories",
     visuals: [
-      { image: "https://images.unsplash.com/photo-1537236398183-20ce192e014d?w=300&q=80", label: "Food" },
-      { image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&q=80", label: "Toys" },
-      { image: "https://images.unsplash.com/photo-1587854692152-cbe660dbde56?w=300&q=80", label: "Medicines" },
-      { image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80", label: "Clothing" },
-      { image: "https://images.unsplash.com/photo-1552053831-71594a27c62d?w=300&q=80", label: "Accessories" },
+      { image: foodCategoryImage, label: "Food" },
+      { image: toysCategoryImage, label: "Toys" },
+      { image: medicinesCategoryImage, label: "Medicines" },
+      { image: clothingCategoryImage, label: "Clothing" },
+      { image: accessoriesCategoryImage, label: "Accessories" },
     ],
   },
   {

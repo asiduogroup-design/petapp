@@ -8,6 +8,7 @@ const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
 
 export default function LoginRegister({ onLogin }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("login");
   const [login, setLogin] = useState(blankLogin);
   const [reg, setReg] = useState(blankReg);
@@ -92,6 +93,9 @@ export default function LoginRegister({ onLogin }) {
     setLoginDone(false);
     setRegDone(false);
     setRegError("");
+    if (t === "login") {
+      resetLoginForm();
+    }
   };
 
   return (
@@ -137,26 +141,30 @@ export default function LoginRegister({ onLogin }) {
               <>
                 <h2 className="auth-title">Sign In</h2>
                 <p className="auth-sub">Enter your credentials to access your account</p>
-                <form className="auth-form" onSubmit={submitLogin}>
+                <form className="auth-form" onSubmit={submitLogin} autoComplete="off">
                   <div className="form-group">
                     <label>Email Address</label>
                     <input
+                      ref={emailRef}
                       name="email"
                       type="email"
                       value={login.email}
                       onChange={changeLogin}
                       placeholder="you@example.com"
+                      autoComplete="off"
                       required
                     />
                   </div>
                   <div className="form-group">
                     <label>Password</label>
                     <input
+                      ref={passwordRef}
                       name="password"
                       type="password"
                       value={login.password}
                       onChange={changeLogin}
-                      placeholder="••••••••"
+                      placeholder="........"
+                      autoComplete="new-password"
                       required
                     />
                   </div>
@@ -222,7 +230,7 @@ export default function LoginRegister({ onLogin }) {
                     name="name"
                     value={reg.name}
                     onChange={changeReg}
-                    placeholder="Jane Doe"
+                    placeholder="Your Name"
                     required
                   />
                 </div>
@@ -244,7 +252,7 @@ export default function LoginRegister({ onLogin }) {
                     type="tel"
                     value={reg.phone}
                     onChange={changeReg}
-                    placeholder="+1 555 000 0000"
+                    placeholder="+91 0000000000"
                   />
                 </div>
                 <div className="form-group">
