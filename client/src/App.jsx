@@ -8,8 +8,6 @@ import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
 import LoginRegister from "./pages/LoginRegister";
 import UserProfile from "./pages/UserProfile";
-import Profile from "./pages/Profile";
-import AdminDashboard from "./pages/AdminDashboard";
 
 function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
   const { pathname } = useLocation();
@@ -38,8 +36,6 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
           path="/user/appointments"
           element={<UserProfile isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
         />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
       {pathname !== "/login" && <Footer />}
     </>
