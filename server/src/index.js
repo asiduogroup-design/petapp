@@ -9,7 +9,7 @@ import orderRoutes from "./routes/orders.js";
 
 import petRoutes from "./routes/pets.js";
 import userRoutes from "./routes/users.js";
-import orderRoutes from "./routes/orders.js";
+
 
 dotenv.config();
 
