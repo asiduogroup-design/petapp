@@ -167,6 +167,7 @@ function StatCard({ label, value, icon }) {
   );
 }
 
+
 function UserTable({ users, onAction, loading, error, actionMsg }) {
   if (loading) return <div>Loading users...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
@@ -177,27 +178,27 @@ function UserTable({ users, onAction, loading, error, actionMsg }) {
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Email Verified</th>
-            <th>Registered</th>
-            <th>Actions</th>
+            <th style={{ textAlign: "center" }}>Name</th>
+            <th style={{ textAlign: "center" }}>Email</th>
+            <th style={{ textAlign: "center" }}>Phone</th>
+            <th style={{ textAlign: "center" }}>Role</th>
+            <th style={{ textAlign: "center" }}>Status</th>
+            <th style={{ textAlign: "center" }}>Email Verified</th>
+            <th style={{ textAlign: "center" }}>Registered</th>
+            <th style={{ textAlign: "center" }}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {users.map((u) => (
             <tr key={u._id} style={{ background: u.isBlocked ? "#ffeaea" : "#fff" }}>
-              <td>{u.name}</td>
-              <td>{u.email}</td>
-              <td>{u.phone || "-"}</td>
-              <td>{u.role}</td>
-              <td>{u.isBlocked ? "Blocked" : "Active"}</td>
-              <td>{u.isEmailVerified ? "Yes" : "No"}</td>
-              <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
-              <td style={{ display: "flex", gap: 6 }}>
+              <td style={{ textAlign: "center" }}>{u.name}</td>
+              <td style={{ textAlign: "center" }}>{u.email}</td>
+              <td style={{ textAlign: "center" }}>{u.phone || "-"}</td>
+              <td style={{ textAlign: "center" }}>{u.role}</td>
+              <td style={{ textAlign: "center" }}>{u.isBlocked ? "Blocked" : "Active"}</td>
+              <td style={{ textAlign: "center" }}>{u.isEmailVerified ? "Yes" : "No"}</td>
+              <td style={{ textAlign: "center" }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
+              <td style={{ display: "flex", gap: 6, justifyContent: "center" }}>
                 {u.role !== "admin" && (
                   <button title="Promote to Admin" style={iconBtnStyle} onClick={() => onAction(u._id, "role", "admin")}><FaCheck /></button>
                 )}
@@ -221,6 +222,8 @@ function UserTable({ users, onAction, loading, error, actionMsg }) {
     </div>
   );
 }
+
+
 
 function ProductTable({ products, loading, error }) {
   if (loading) return <div>Loading products...</div>;
