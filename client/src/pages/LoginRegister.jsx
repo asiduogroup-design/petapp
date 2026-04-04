@@ -1,13 +1,14 @@
 
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
-import { Link } from "react-router-dom";
 
 const blankLogin = { email: "", password: "" };
 const blankReg = { name: "", email: "", phone: "", password: "", confirm: "" };
 
 export default function LoginRegister({ onLogin }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("login");
   const [login, setLogin] = useState(blankLogin);
   const [reg, setReg] = useState(blankReg);
@@ -43,6 +44,8 @@ export default function LoginRegister({ onLogin }) {
       }
       if (onLogin) onLogin();
       setLoginDone(true);
+      // Optionally redirect after login
+      setTimeout(() => navigate("/"), 1200);
     } catch (err) {
       setLoginError("Network error");
     } finally {
@@ -80,6 +83,8 @@ export default function LoginRegister({ onLogin }) {
         return;
       }
       setRegDone(true);
+      // Optionally redirect after registration
+      setTimeout(() => switchTab("login"), 1200);
     } catch (err) {
       setRegError("Network error");
     } finally {
