@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 
 const navLinks = [
@@ -11,37 +11,8 @@ const navLinks = [
 const navbarLogoUrl =
   "https://res.cloudinary.com/dlx9tnj7p/image/upload/v1775200169/Kalyaan_Pet_Shop_logo_design_qxfec5.png";
 
-
 export default function Navbar({ isLoggedIn, onLogout }) {
   const [open, setOpen] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-
-  // Fetch user role on mount if logged in
-  useEffect(() => {
-    async function fetchRole() {
-      if (!isLoggedIn) {
-        setUserRole(null);
-        return;
-      }
-      const token = localStorage.getItem("petapp_token");
-      if (!token) {
-        setUserRole(null);
-        return;
-      }
-      try {
-        const API_BASE = import.meta.env.VITE_API_URL || "";
-        const res = await fetch(`${API_BASE}/api/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error();
-        const user = await res.json();
-        setUserRole(user.role);
-      } catch {
-        setUserRole(null);
-      }
-    }
-    fetchRole();
-  }, [isLoggedIn]);
 
   return (
     <nav className="navbar">
@@ -70,17 +41,6 @@ export default function Navbar({ isLoggedIn, onLogout }) {
                 </NavLink>
               </li>
             ))}
-            {userRole === "admin" && (
-              <li>
-                <NavLink
-                  to="/admin"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                  onClick={() => setOpen(false)}
-                >
-                  Admin
-                </NavLink>
-              </li>
-            )}
           </ul>
 
           <div className="nav-actions">
