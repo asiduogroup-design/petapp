@@ -21,6 +21,8 @@ function Layout({ isLoggedIn, user, onLogin, onLogout }) {
         <Route path="/doctors" element={<DoctorsAppointment />} />
         <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
         <Route path="/user" element={<UserProfile isLoggedIn={isLoggedIn} user={user} />} />
+        <Route path="/user/orders" element={<UserProfile isLoggedIn={isLoggedIn} user={user} />} />
+        <Route path="/user/appointments" element={<UserProfile isLoggedIn={isLoggedIn} user={user} />} />
       </Routes>
       {pathname !== "/login" && <Footer />}
     </>
