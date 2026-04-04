@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const blankLogin = { email: "", password: "" };
@@ -12,6 +12,26 @@ export default function LoginRegister({ onLogin }) {
   const [loginDone, setLoginDone] = useState(false);
   const [regDone, setRegDone] = useState(false);
   const [regError, setRegError] = useState("");
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const resetLoginForm = () => {
+    setLogin(blankLogin);
+    if (emailRef.current) {
+      emailRef.current.value = "";
+    }
+    if (passwordRef.current) {
+      passwordRef.current.value = "";
+    }
+  };
+
+  useEffect(() => {
+    if (tab !== "login") return;
+
+    resetLoginForm();
+    const timer = window.setTimeout(resetLoginForm, 120);
+    return () => window.clearTimeout(timer);
+  }, [tab]);
 
   const changeLogin = (e) => setLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const changeReg = (e) => setReg((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -26,7 +46,7 @@ export default function LoginRegister({ onLogin }) {
     if (onLogin) {
       onLogin(parsedUser);
     }
-    setLogin(blankLogin);
+    resetLoginForm();
     setLoginDone(true);
     navigate("/user");
   };
@@ -58,6 +78,9 @@ export default function LoginRegister({ onLogin }) {
     setLoginDone(false);
     setRegDone(false);
     setRegError("");
+    if (t === "login") {
+      resetLoginForm();
+    }
   };
 
   return (
@@ -103,26 +126,30 @@ export default function LoginRegister({ onLogin }) {
               <>
                 <h2 className="auth-title">Sign In</h2>
                 <p className="auth-sub">Enter your credentials to access your account</p>
-                <form className="auth-form" onSubmit={submitLogin}>
+                <form className="auth-form" onSubmit={submitLogin} autoComplete="off">
                   <div className="form-group">
                     <label>Email Address</label>
                     <input
+                      ref={emailRef}
                       name="email"
                       type="email"
                       value={login.email}
                       onChange={changeLogin}
                       placeholder="you@example.com"
+                      autoComplete="off"
                       required
                     />
                   </div>
                   <div className="form-group">
                     <label>Password</label>
                     <input
+                      ref={passwordRef}
                       name="password"
                       type="password"
                       value={login.password}
                       onChange={changeLogin}
-                      placeholder="••••••••"
+                      placeholder="........"
+                      autoComplete="new-password"
                       required
                     />
                   </div>
