@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../lib/api";
 
 const allProducts = [
   { id: 1, emoji: "🦴", name: "Premium Dog Kibble", cat: "Food", brand: "Pedigree", size: "Large", pet: "Dog", price: 899, stars: "★★★★★", rating: 5.0 },
@@ -31,7 +33,8 @@ const petTypes = [
   { label: "Others", icon: "🐾" },
 ];
 
-export default function Products() {
+export default function Products({ isLoggedIn, authToken }) {
+  const navigate = useNavigate();
   const [active, setActive] = useState("All");
   const [activeBrand, setActiveBrand] = useState("All");
   const [activeSize, setActiveSize] = useState("All");
@@ -39,6 +42,7 @@ export default function Products() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [orderingId, setOrderingId] = useState(null);
 
   const visible = allProducts
     .filter((p) => {
@@ -64,28 +68,36 @@ export default function Products() {
     setActiveSize("All");
   };
 
-  const saveOrder = (product) => {
-    const storedOrders = localStorage.getItem("petapp_orders");
-    const orders = storedOrders ? JSON.parse(storedOrders) : [];
-    const storedUser = localStorage.getItem("petapp_user");
-    const user = storedUser ? JSON.parse(storedUser) : null;
+  const saveOrder = async (product) => {
+    if (!isLoggedIn || !authToken) {
+      window.alert("Please log in before ordering a product.");
+      navigate("/login");
+      return;
+    }
 
-    const nextOrder = {
-      id: `order-${Date.now()}`,
-      productId: product.id,
-      productName: product.name,
-      category: product.cat,
-      brand: product.brand,
-      size: product.size,
-      price: product.price,
-      emoji: product.emoji,
-      customerName: user?.name || "Guest User",
-      orderedAt: new Date().toISOString(),
-      status: "Order placed",
-    };
+    setOrderingId(product.id);
 
-    localStorage.setItem("petapp_orders", JSON.stringify([nextOrder, ...orders]));
-    window.alert(`${product.name} added to your orders.`);
+    try {
+      await apiRequest("/orders", {
+        method: "POST",
+        token: authToken,
+        body: {
+          productId: product.id,
+          productName: product.name,
+          category: product.cat,
+          brand: product.brand,
+          size: product.size,
+          price: product.price,
+          emoji: product.emoji,
+        },
+      });
+
+      window.alert(`${product.name} added to your orders.`);
+    } catch (error) {
+      window.alert(error.message);
+    } finally {
+      setOrderingId(null);
+    }
   };
 
   return (
@@ -225,9 +237,10 @@ export default function Products() {
                       <button
                         className="btn btn-primary btn-sm"
                         style={{ flex: 1 }}
+                        disabled={orderingId === p.id}
                         onClick={() => saveOrder(p)}
                       >
-                        Add to Cart
+                        {orderingId === p.id ? "Adding..." : "Add to Cart"}
                       </button>
                     </div>
                   </div>

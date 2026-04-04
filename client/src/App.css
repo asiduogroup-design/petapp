@@ -235,6 +235,9 @@ a { text-decoration: none; }
 
 /* ===== PRODUCT CARD ===== */
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.25rem; }
+.home-products-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
 .product-card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
 .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
 .product-img { background: var(--bg); height: 140px; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
@@ -244,6 +247,16 @@ a { text-decoration: none; }
 .product-price { color: var(--accent-dark); font-weight: 800; font-size: 1.1rem; margin-bottom: 0.75rem; }
 .product-star { color: #f59e0b; font-size: 0.85rem; margin-bottom: 0.5rem; }
 .product-actions { display: flex; gap: 0.5rem; }
+
+@media (max-width: 1200px) {
+  .home-products-grid {
+    overflow-x: auto;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(210px, 1fr);
+    grid-template-columns: none;
+    padding-bottom: 0.35rem;
+  }
+}
 
 /* ===== SERVICES CARD ===== */
 .services-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
@@ -454,8 +467,25 @@ a { text-decoration: none; }
 .history-title-wrap p { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.88rem; }
 .history-badge { padding: 0.35rem 0.7rem; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
 .history-badge.completed { background: #e2e8f0; color: #334155; }
+.history-badge.canceled { background: #fee2e2; color: #b91c1c; }
 .history-badge.today { background: #fef3c7; color: #92400e; }
 .history-meta { display: grid; gap: 0.45rem; color: var(--text-muted); font-size: 0.88rem; }
+.history-actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.history-cancel-btn {
+  background: #ef4444;
+  color: #fff;
+}
+.history-cancel-btn:hover {
+  background: #dc2626;
+}
+.history-cancel-btn:disabled,
+.history-cancel-btn:disabled:hover {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
 
 @media (max-width: 640px) {
   .user-hero { flex-direction: column; align-items: flex-start; }
