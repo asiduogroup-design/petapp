@@ -1,6 +1,51 @@
-import { Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
+
+const readList = (key) => {
+  const stored = localStorage.getItem(key);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const formatDateTime = (value) => {
+  if (!value) return "Not available";
+  return new Date(value).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const formatDate = (value) => {
+  if (!value) return "Not selected";
+  return new Date(value).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const getAppointmentStatus = (appointment) => {
+  if (!appointment?.date) return "Booked";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const visitDate = new Date(appointment.date);
+  visitDate.setHours(0, 0, 0, 0);
+
+  if (visitDate < today) return "Completed";
+  if (visitDate.getTime() === today.getTime()) return "Today";
+  return "Booked";
+};
+
+const getBadgeClass = (status) => {
+  if (status === "Completed") return "history-badge completed";
+  if (status === "Today") return "history-badge today";
+  return "history-badge";
+};
 
 export default function UserProfile({ isLoggedIn, user }) {
+  const location = useLocation();
+
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
@@ -11,6 +56,14 @@ export default function UserProfile({ isLoggedIn, user }) {
     phone: "+91 0000000000",
   };
 
+  const orders = readList("petapp_orders");
+  const appointments = readList("petapp_appointments");
+  const activePage = location.pathname.endsWith("/orders")
+    ? "orders"
+    : location.pathname.endsWith("/appointments")
+      ? "appointments"
+      : "overview";
+
   return (
     <section className="section user-page">
       <div className="container">
@@ -19,7 +72,7 @@ export default function UserProfile({ isLoggedIn, user }) {
             <div className="user-avatar">👤</div>
             <div>
               <h2>{profile.name}</h2>
-              <p>Your PetCare account details and profile overview.</p>
+              <p>Your PetCare account details, orders, and appointment history.</p>
             </div>
           </div>
 
@@ -43,9 +96,124 @@ export default function UserProfile({ isLoggedIn, user }) {
               </div>
             </div>
 
-            <div className="user-note">
-              This page is ready for future additions like appointment history, pets, and orders.
+            <div className="user-nav-grid">
+              <Link
+                to="/user/orders"
+                className={`user-nav-card${activePage === "orders" ? " active" : ""}`}
+              >
+                <div>
+                  <h3>Orders</h3>
+                  <p>Open your product order history.</p>
+                </div>
+                <span className="user-count">{orders.length}</span>
+              </Link>
+
+              <Link
+                to="/user/appointments"
+                className={`user-nav-card${activePage === "appointments" ? " active" : ""}`}
+              >
+                <div>
+                  <h3>Doctor Appointments</h3>
+                  <p>See booked, today, and completed visits.</p>
+                </div>
+                <span className="user-count">{appointments.length}</span>
+              </Link>
             </div>
+
+            {activePage === "overview" && (
+              <div className="user-overview-note">
+                Choose `Orders` or `Doctor Appointments` above to open the full history page.
+              </div>
+            )}
+
+            {activePage === "orders" && (
+              <div className="user-history-card">
+                <div className="user-section-head">
+                  <div>
+                    <h3>Orders History</h3>
+                    <p>Your old and recent product orders are shown here.</p>
+                  </div>
+                  <Link to="/user" className="user-back-link">
+                    Back to Profile
+                  </Link>
+                </div>
+
+                {orders.length === 0 ? (
+                  <div className="user-empty-state">
+                    No order history found yet. Add a product from the products page and it will appear here.
+                  </div>
+                ) : (
+                  <div className="user-history-list">
+                    {orders.map((order) => (
+                      <article key={order.id} className="history-item">
+                        <div className="history-item-top">
+                          <div className="history-title-wrap">
+                            <span className="history-emoji">{order.emoji}</span>
+                            <div>
+                              <h4>{order.productName}</h4>
+                              <p>{order.category}</p>
+                            </div>
+                          </div>
+                          <span className="history-badge completed">Completed</span>
+                        </div>
+                        <div className="history-meta">
+                          <span>Brand: {order.brand}</span>
+                          <span>Size: {order.size}</span>
+                          <span>Price: ₹{Number(order.price).toLocaleString("en-IN")}</span>
+                          <span>Ordered On: {formatDateTime(order.orderedAt)}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activePage === "appointments" && (
+              <div className="user-history-card">
+                <div className="user-section-head">
+                  <div>
+                    <h3>Doctor Appointment History</h3>
+                    <p>Future booked visits and already completed appointments are shown here.</p>
+                  </div>
+                  <Link to="/user" className="user-back-link">
+                    Back to Profile
+                  </Link>
+                </div>
+
+                {appointments.length === 0 ? (
+                  <div className="user-empty-state">
+                    No appointment history found yet. Book a doctor appointment and it will appear here.
+                  </div>
+                ) : (
+                  <div className="user-history-list">
+                    {appointments.map((appointment) => {
+                      const status = getAppointmentStatus(appointment);
+                      return (
+                        <article key={appointment.id} className="history-item">
+                          <div className="history-item-top">
+                            <div className="history-title-wrap">
+                              <span className="history-emoji">🩺</span>
+                              <div>
+                                <h4>{appointment.doctor}</h4>
+                                <p>{appointment.petName} · {appointment.petType}</p>
+                              </div>
+                            </div>
+                            <span className={getBadgeClass(status)}>{status}</span>
+                          </div>
+                          <div className="history-meta">
+                            <span>Date: {formatDate(appointment.date)}</span>
+                            <span>Time: {appointment.time || "Not selected"}</span>
+                            <span>Booked On: {formatDateTime(appointment.bookedAt)}</span>
+                            <span>Issue: {appointment.issue || "No issue details added"}</span>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -64,6 +64,30 @@ export default function Products() {
     setActiveSize("All");
   };
 
+  const saveOrder = (product) => {
+    const storedOrders = localStorage.getItem("petapp_orders");
+    const orders = storedOrders ? JSON.parse(storedOrders) : [];
+    const storedUser = localStorage.getItem("petapp_user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+
+    const nextOrder = {
+      id: `order-${Date.now()}`,
+      productId: product.id,
+      productName: product.name,
+      category: product.cat,
+      brand: product.brand,
+      size: product.size,
+      price: product.price,
+      emoji: product.emoji,
+      customerName: user?.name || "Guest User",
+      orderedAt: new Date().toISOString(),
+      status: "Order placed",
+    };
+
+    localStorage.setItem("petapp_orders", JSON.stringify([nextOrder, ...orders]));
+    window.alert(`${product.name} added to your orders.`);
+  };
+
   return (
     <>
       <div className="page-banner">
@@ -198,7 +222,11 @@ export default function Products() {
                       <span>{p.size}</span>
                     </div>
                     <div className="product-actions">
-                      <button className="btn btn-primary btn-sm" style={{ flex: 1 }}>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        style={{ flex: 1 }}
+                        onClick={() => saveOrder(p)}
+                      >
                         Add to Cart
                       </button>
                     </div>
