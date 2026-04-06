@@ -49,8 +49,31 @@ export default function Footer() {
           <div className="footer-col">
             <h4>Contact</h4>
             <ul>
-              <li>📍 123 Pet Lane, NY 10001</li>
-              <li>📞 +1 (555) 234-5678</li>
+              <li>📍 Doo No :43-106-19, Near Sai Baba Temple, Beside Apollo Pharmacy, Nuzvid Main Road, P&t Colony, Singh Nagar, Vijayawada-520015, Andhra Pradesh</li>
+              <li>
+                <a
+                  href="https://wa.me/918008882383"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+                  aria-label="WhatsApp"
+                >
+                  <i className="bi bi-whatsapp" style={{ color: '#25D366', fontSize: '1.3em', marginRight: '0.3em' }}></i>
+                  8008882383
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.google.com/maps?q=16.541611,80.637556"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#4285F4', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+                  aria-label="View in Google Maps"
+                >
+                  <i className="bi bi-geo-alt-fill" style={{ color: '#EA4335', fontSize: '1.2em', marginRight: '0.3em' }}></i>
+                  View in Google Maps
+                </a>
+              </li>
               <li>✉️ hello@petcare.com</li>
               <li>🕐 Mon–Sat: 8am – 8pm</li>
             </ul>
