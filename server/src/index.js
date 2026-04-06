@@ -1,13 +1,12 @@
-import orderRoutes from "./routes/orders.js";
-app.use("/api/orders", orderRoutes);
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
-
 import petRoutes from "./routes/pets.js";
+import userRoutes from "./routes/users.js";
+import orderRoutes from "./routes/orders.js";
 
 dotenv.config();
 
@@ -22,10 +21,10 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-
 app.use("/api/pets", petRoutes);
-import userRoutes from "./routes/users.js";
 app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
+
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ message: err.message || "Internal server error" });
