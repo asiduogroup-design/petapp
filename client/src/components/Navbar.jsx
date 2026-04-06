@@ -16,8 +16,13 @@ export default function Navbar({ isLoggedIn, onLogout }) {
       <div className="container">
         <div className="nav-inner">
           <Link to="/" className="nav-logo" onClick={() => setOpen(false)}>
-            <span className="nav-logo-icon">🐾</span>
-            <span className="nav-logo-text">PetCare</span>
+            <img
+              src="https://res.cloudinary.com/dlx9tnj7p/image/upload/v1775200169/Kalyaan_Pet_Shop_logo_design_qxfec5.png"
+              alt="Kalyan Pet Shop"
+              className="nav-logo-image"
+              loading="eager"
+              referrerPolicy="no-referrer"
+            />
           </Link>
 
           <ul className={`nav-menu${open ? " open" : ""}`}>
