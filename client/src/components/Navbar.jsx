@@ -9,6 +9,7 @@ const navLinks = [
 ];
 
 export default function Navbar({ isLoggedIn, user, onLogout }) {
+    console.log("Navbar user:", user);
   const [open, setOpen] = useState(false);
 
   return (

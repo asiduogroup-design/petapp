@@ -56,7 +56,7 @@ export default function LoginRegister({ onLogin }) {
 
       resetLoginForm();
       setLoginDone(true);
-      navigate("/user");
+      navigate("/");
     } catch (error) {
       setLoginError(error.message);
       // If user not found, show register suggestion
