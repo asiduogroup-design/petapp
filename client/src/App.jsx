@@ -26,18 +26,7 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
           element={<DoctorsAppointment isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
         />
         <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
-        <Route
-          path="/user"
-          element={<UserProfile isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
-        />
-        <Route
-          path="/user/orders"
-          element={<UserProfile isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
-        />
-        <Route
-          path="/user/appointments"
-          element={<UserProfile isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
-        />
+    
         <Route
           path="/admin"
           element={
