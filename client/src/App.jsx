@@ -52,11 +52,15 @@ export default function App() {
   const handleLogin = ({ token, user: nextUser }) => {
     setAuthToken(token || "");
     setUser(nextUser || null);
+    if (token) {
+      localStorage.setItem("petapp_token", token);
+    }
   };
 
   const handleLogout = () => {
     setAuthToken("");
     setUser(null);
+    localStorage.removeItem("petapp_token");
   };
 
   return (
