@@ -1,25 +1,3 @@
-// Get all orders for a specific user (user order history)
-router.get("/my", requireAuth, async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Delete an order (admin only)
-router.delete("/:id", requireAuth, async (req, res) => {
-  try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Forbidden: Admins only" });
-    }
-    await Order.findByIdAndDelete(req.params.id);
-    res.json({ message: "Order deleted" });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
 import { Router } from "express";
 import Order from "../models/Order.js";
 import jwt from "jsonwebtoken";
@@ -42,6 +20,30 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ message: "Invalid token" });
   }
 }
+
+// Get all orders for a specific user (user order history)
+router.get("/my", requireAuth, async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete an order (admin only)
+router.delete(":id", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden: Admins only" });
+    }
+    await Order.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Order deleted" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 // Get all orders (admin only)
 router.get("/", requireAuth, async (req, res) => {
