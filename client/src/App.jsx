@@ -7,7 +7,6 @@ import Products from "./pages/Products";
 import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
 import LoginRegister from "./pages/LoginRegister";
-import UserProfile from "./pages/UserProfile";
 import AdminDashboard from "./pages/AdminDashboard";
 import { Navigate } from "react-router-dom";
 
