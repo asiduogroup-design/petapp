@@ -1,3 +1,5 @@
+import userRoutes from "./routes/users.js";
+app.use("/api/users", userRoutes);
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
