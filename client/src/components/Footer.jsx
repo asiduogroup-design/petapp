@@ -1,20 +1,5 @@
 import { Link } from "react-router-dom";
 
-const clinicDetails = {
-  name: "Kalyan Pets & Clinic",
-  addressLine1: "Doo No :43-106-19, Near Sai Baba Temple",
-  addressLine2: "Beside Apollo Pharmacy, Nuzvid Main Road, P&T Colony",
-  cityLine: "Singh Nagar, Vijayawada - 520015, Andhra Pradesh",
-  hours: "Mon-Sun: 9:00 AM - 10:00 PM",
-  specialties: "Pet Clinic, Veterinary Care, Pet Food, Dog Accessories",
-  mapUrl: "https://maps.google.com/?q=16.5416181,80.6375518",
-  phone: "+91 98765 43210",
-  whatsappNumber: "919876543210",
-  email: "contact@kalyanpetcare.com",
-  listingUrl:
-    "https://www.justdial.com/Vijayawada/Kalyan-Pets-Clinic-Near-Sai-Baba-Temple-Beside-Apollo-Pharmacy-Singh-Nagar/0866PX866-X866-230803161734-T1Q8_BZDET",
-};
-
 export default function Footer() {
   return (
     <footer className="footer">
@@ -29,25 +14,13 @@ export default function Footer() {
                 loading="eager"
                 referrerPolicy="no-referrer"
               />
-             <span className="nav-logo-text">PetCare</span>
             </Link>
             <p>Your one-stop destination for premium pet products, expert care, and happy pets.</p>
             <div className="footer-socials">
-              <a href={`tel:${clinicDetails.phone.replace(/\s+/g, "")}`} className="footer-social-link" aria-label="Phone">
-                📞
-              </a>
-              <a
-                href={`https://wa.me/${clinicDetails.whatsappNumber}`}
-                className="footer-social-link"
-                aria-label="WhatsApp"
-                target="_blank"
-                rel="noreferrer"
-              >
-                💬
-              </a>
-              <a href={`mailto:${clinicDetails.email}`} className="footer-social-link" aria-label="Email">
-                ✉️
-              </a>
+              <a href="#" className="footer-social-link" aria-label="Facebook">📘</a>
+              <a href="#" className="footer-social-link" aria-label="Instagram">📸</a>
+              <a href="#" className="footer-social-link" aria-label="Twitter">🐦</a>
+              <a href="#" className="footer-social-link" aria-label="YouTube">▶️</a>
             </div>
           </div>
 
@@ -74,20 +47,12 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
-            <h4>Contact Us</h4>
+            <h4>Contact</h4>
             <ul>
-              <li>{clinicDetails.name}</li>
-              <li>{clinicDetails.addressLine1}</li>
-              <li>{clinicDetails.addressLine2}</li>
-              <li>{clinicDetails.cityLine}</li>
-              <li>{clinicDetails.hours}</li>
-              <li>{clinicDetails.specialties}</li>
-              <li>
-                <a href={clinicDetails.mapUrl} target="_blank" rel="noreferrer">
-                  View on Google Maps
-                </a>
-              </li>
-              {/* Removed 'View business listing' link as requested */}
+              <li>📍 123 Pet Lane, NY 10001</li>
+              <li>📞 +1 (555) 234-5678</li>
+              <li>✉️ hello@petcare.com</li>
+              <li>🕐 Mon–Sat: 8am – 8pm</li>
             </ul>
           </div>
         </div>
