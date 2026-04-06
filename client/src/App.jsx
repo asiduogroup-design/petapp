@@ -8,6 +8,8 @@ import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
 import LoginRegister from "./pages/LoginRegister";
 import UserProfile from "./pages/UserProfile";
+import AdminDashboard from "./pages/AdminDashboard";
+import { Navigate } from "react-router-dom";
 
 function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
   const { pathname } = useLocation();
@@ -35,6 +37,18 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
         <Route
           path="/user/appointments"
           element={<UserProfile isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
+        />
+        <Route
+          path="/admin"
+          element={
+            user && user.role === "admin" ? (
+              <AdminDashboard />
+            ) : user ? (
+              <Navigate to="/user" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
       </Routes>
       {pathname !== "/login" && <Footer />}
