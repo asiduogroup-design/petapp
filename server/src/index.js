@@ -1,5 +1,3 @@
-import userRoutes from "./routes/users.js";
-app.use("/api/users", userRoutes);
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -24,6 +22,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 
 app.use("/api/pets", petRoutes);
+import userRoutes from "./routes/users.js";
+app.use("/api/users", userRoutes);
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ message: err.message || "Internal server error" });
