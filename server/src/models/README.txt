@@ -1,0 +1,1 @@
+User model and authentication routes have been added. If you have existing users, update their documents to include a 'role' field (either 'user' or 'admin').

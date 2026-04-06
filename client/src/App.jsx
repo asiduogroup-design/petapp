@@ -16,7 +16,7 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
 
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={onLogout} />
+      <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={onLogout} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products isLoggedIn={isLoggedIn} authToken={authToken} />} />

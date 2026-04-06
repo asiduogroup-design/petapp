@@ -8,7 +8,7 @@ const navLinks = [
   { to: "/doctors", label: "Doctors" },
 ];
 
-export default function Navbar({ isLoggedIn, onLogout }) {
+export default function Navbar({ isLoggedIn, user, onLogout }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -38,6 +38,18 @@ export default function Navbar({ isLoggedIn, onLogout }) {
                 </NavLink>
               </li>
             ))}
+            {/* Admin link only for admin role */}
+            {user && user.role === "admin" && (
+              <li>
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={() => setOpen(false)}
+                >
+                  Admin
+                </NavLink>
+              </li>
+            )}
           </ul>
 
           <div className="nav-actions">

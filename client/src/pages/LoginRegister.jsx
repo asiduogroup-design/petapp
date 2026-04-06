@@ -59,10 +59,17 @@ export default function LoginRegister({ onLogin }) {
       navigate("/user");
     } catch (error) {
       setLoginError(error.message);
+      // If user not found, show register suggestion
+      if (error.message && error.message.toLowerCase().includes("register")) {
+        setShowRegisterHere(true);
+      } else {
+        setShowRegisterHere(false);
+      }
     } finally {
       setSubmitting(false);
     }
   };
+  const [showRegisterHere, setShowRegisterHere] = useState(false);
 
   const submitReg = async (e) => {
     e.preventDefault();
@@ -180,9 +187,32 @@ export default function LoginRegister({ onLogin }) {
                     />
                   </div>
                   {loginError && (
-                    <p style={{ color: "var(--red)", fontSize: "0.9rem", fontWeight: 600 }}>
-                      {loginError}
-                    </p>
+                    <>
+                      <p style={{ color: "var(--red)", fontSize: "0.9rem", fontWeight: 600 }}>
+                        {loginError}
+                      </p>
+                      {showRegisterHere && (
+                        <button
+                          type="button"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--primary)",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            fontSize: "0.95rem",
+                            marginTop: "0.5rem",
+                          }}
+                          onClick={() => {
+                            setTab("register");
+                            setShowRegisterHere(false);
+                            setLoginError("");
+                          }}
+                        >
+                          Register here
+                        </button>
+                      )}
+                    </>
                   )}
                   <div style={{ textAlign: "right", marginTop: "-0.25rem" }}>
                     <a
