@@ -1,3 +1,24 @@
+  // Delete order (admin only)
+  async function handleDeleteOrder(orderId) {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setActionMsg(data.message || "Order deleted");
+      // Refresh orders
+      const resO = await fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
+      if (resO.ok) {
+        const ordersData = await resO.json();
+        setOrders(ordersData);
+        setStats(s => ({ ...s, orders: ordersData.length }));
+      }
+    } catch (err) {
+      setActionMsg("Order deletion failed");
+    }
+  }
 import { useEffect, useState } from "react";
 
 // Use VITE_API_URL from .env, fallback to relative path for local dev
@@ -288,6 +309,7 @@ function OrderTable({ orders, loading, error }) {
               <td>{o.status}</td>
               <td>
                 <button style={iconBtnStyle}><FaEye /></button>
+                <button style={{ ...iconBtnStyle, color: "#d9534f" }} onClick={() => handleDeleteOrder(o._id)} title="Delete Order"><FaTrash /></button>
                 {/* Add update/cancel actions as needed */}
               </td>
             </tr>

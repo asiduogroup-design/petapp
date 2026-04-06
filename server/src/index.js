@@ -1,3 +1,5 @@
+import orderRoutes from "./routes/orders.js";
+app.use("/api/orders", orderRoutes);
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
