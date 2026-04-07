@@ -71,14 +71,21 @@ function App() {
 
   const isLoggedIn = Boolean(authToken && user);
 
-  // Persist session on refresh
+  // Persist session on refresh and restore user
   useEffect(() => {
     const token = localStorage.getItem("petapp_token");
-
     if (token && !authToken) {
       setAuthToken(token);
     }
-  }, []);
+    // If token exists but user is null, fetch user profile
+    if (token && !user) {
+      fetch("/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => { if (data) setUser(data); });
+    }
+  }, [authToken, user]);
 
   // Inactivity auto logout
   useEffect(() => {
