@@ -72,6 +72,9 @@ function App() {
   const isLoggedIn = Boolean(authToken && user);
 
   // Persist session on refresh and restore user
+  // Use VITE_API_URL from .env, fallback to relative path for local dev
+  const API_BASE = import.meta.env.VITE_API_URL || "";
+
   useEffect(() => {
     const token = localStorage.getItem("petapp_token");
     if (token && !authToken) {
@@ -79,7 +82,7 @@ function App() {
     }
     // If token exists but user is null, fetch user profile
     if (token && !user) {
-      fetch("/api/users/me", {
+      fetch(`${API_BASE}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.ok ? res.json() : null)
