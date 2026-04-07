@@ -1,3 +1,80 @@
+/* ===== RESPONSIVE ENHANCEMENTS ===== */
+@media (max-width: 1024px) {
+  .section { padding: 3rem 0; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .products-grid, .services-grid, .offers-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 0.5rem; }
+  .section { padding: 2rem 0; }
+  .nav-inner { flex-direction: column; align-items: flex-start; min-height: 60px; }
+  .nav-actions { gap: 0.5rem; }
+  .footer-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .footer { padding: 2rem 0 1rem; }
+  .footer-bottom { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .hero-layout { grid-template-columns: 1fr; gap: 1.2rem; }
+  .hero-visual { max-width: 100%; margin-top: 1rem; }
+  .products-grid, .services-grid, .offers-grid { grid-template-columns: 1fr; }
+  .doctors-grid { grid-template-columns: 1fr; }
+  .admin-dashboard-main { flex-direction: column; }
+  .admin-dashboard-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #eee; margin-bottom: 1rem; }
+  .admin-dashboard-content { padding: 1rem; }
+}
+
+@media (max-width: 600px) {
+  .section-title { font-size: 1.2rem; }
+  .section-sub { font-size: 0.95rem; }
+  .btn, .btn-primary, .btn-accent, .btn-outline { font-size: 0.95rem; padding: 0.5rem 1rem; }
+  .StatCard, .stat-card { min-width: 120px !important; padding: 12px !important; }
+  .hero-headline { font-size: 1.3rem; }
+  .hero-btns { flex-direction: column; gap: 0.5rem; }
+  .hero-stats { flex-direction: column; gap: 0.5rem; }
+  .footer { padding: 1.2rem 0 0.5rem; }
+  .footer-grid { gap: 0.5rem; }
+  .footer-col h4 { font-size: 0.9rem; }
+  .footer-col li, .footer-col a { font-size: 0.85rem; }
+  .footer-brand p { font-size: 0.85rem; }
+  .admin-dashboard-main { flex-direction: column; }
+  .admin-dashboard-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #eee; margin-bottom: 1rem; }
+  .admin-dashboard-content { padding: 0.5rem; }
+}
+
+/* Responsive tables for admin/user dashboards */
+.responsive-table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+.responsive-table table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+}
+.responsive-table th, .responsive-table td {
+  padding: 0.5rem;
+  font-size: 0.95rem;
+}
+@media (max-width: 600px) {
+  .responsive-table table, .responsive-table th, .responsive-table td {
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+  .responsive-table table { min-width: 420px; }
+}
+
+/* Responsive form fields */
+form, .auth-form, .booking-form, .form-grid {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .form-group label, .form-group input, .form-group select, .form-group textarea {
+    font-size: 0.95rem;
+  }
+  .auth-card, .booking-form { padding: 1rem !important; }
+}
 /* ===== RESET & GLOBALS ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
