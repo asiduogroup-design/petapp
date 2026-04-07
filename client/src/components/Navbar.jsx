@@ -51,34 +51,13 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
                 </NavLink>
               </li>
             )}
-            {/* Show login/logout in menu for mobile */}
-            <li className="nav-mobile-action">
-              {isLoggedIn ? (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => {
-                    onLogout();
-                    setOpen(false);
-                  }}
-                  style={{ width: "100%" }}
-                >
-                  Logout
-                </button>
-              ) : (
-                <Link to="/login" className="btn btn-primary btn-sm" onClick={() => setOpen(false)} style={{ width: "100%" }}>
-                  Login
-                </Link>
-              )}
-            </li>
           </ul>
 
           <div className="nav-actions">
-            {/* Hide on mobile, show on desktop */}
             {isLoggedIn ? (
               <button
                 type="button"
-                className="btn btn-primary btn-sm nav-desktop-action"
+                className="btn btn-primary btn-sm"
                 onClick={() => {
                   onLogout();
                   setOpen(false);
@@ -87,7 +66,7 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
                 Logout
               </button>
             ) : (
-              <Link to="/login" className="btn btn-primary btn-sm nav-desktop-action" onClick={() => setOpen(false)}>
+              <Link to="/login" className="btn btn-primary btn-sm" onClick={() => setOpen(false)}>
                 Login
               </Link>
             )}
