@@ -62,33 +62,42 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
 }
 
 
-function App() {
 
+function App() {
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(false);
   const [showTimeout, setShowTimeout] = useState(false);
   const inactivityTimer = useRef(null);
 
   const isLoggedIn = Boolean(authToken && user);
 
-  // Persist session on refresh and restore user
   // Use VITE_API_URL from .env, fallback to relative path for local dev
   const API_BASE = import.meta.env.VITE_API_URL || "";
 
+  // Persist session on refresh and restore user
   useEffect(() => {
     const token = localStorage.getItem("petapp_token");
     if (token && !authToken) {
       setAuthToken(token);
     }
-    // If token exists but user is null, fetch user profile
     if (token && !user) {
+      setLoadingUser(true);
       fetch(`${API_BASE}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.ok ? res.json() : null)
-        .then(data => { if (data) setUser(data); });
+        .then(data => {
+          if (data) setUser(data);
+        })
+        .finally(() => setLoadingUser(false));
     }
   }, [authToken, user]);
+
+  // Show loading spinner or nothing while restoring user
+  if (loadingUser) {
+    return <div style={{textAlign:'center',marginTop:60}}>Loading...</div>;
+  }
 
   // Inactivity auto logout
   useEffect(() => {
