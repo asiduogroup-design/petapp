@@ -62,45 +62,56 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
 }
 
 
-
 function App() {
+
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [showTimeout, setShowTimeout] = useState(false);
+
   const inactivityTimer = useRef(null);
 
   const isLoggedIn = Boolean(authToken && user);
 
-  // Use VITE_API_URL from .env, fallback to relative path for local dev
   const API_BASE = import.meta.env.VITE_API_URL || "";
 
-  // Persist session on refresh and restore user
+
+
+  // Restore session from localStorage
   useEffect(() => {
+
     const token = localStorage.getItem("petapp_token");
-    if (token && !authToken) {
-      setAuthToken(token);
+
+    if (!token) {
+      setLoadingUser(false);
+      return;
     }
-    if (token && !user) {
-      setLoadingUser(true);
-      fetch(`${API_BASE}/api/users/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+
+    setAuthToken(token);
+
+    fetch(`${API_BASE}/api/users/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setUser(data);
+        } else {
+          localStorage.removeItem("petapp_token");
+        }
       })
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (data) setUser(data);
-        })
-        .finally(() => setLoadingUser(false));
-    }
-  }, [authToken, user]);
+      .catch(() => {
+        localStorage.removeItem("petapp_token");
+      })
+      .finally(() => {
+        setLoadingUser(false);
+      });
 
-  // Show loading spinner or nothing while restoring user
-  if (loadingUser) {
-    // Don't render Layout or Navbar until user is loaded
-    return <div style={{textAlign:'center',marginTop:60}}>Loading...</div>;
-  }
+  }, []);
 
-  // Inactivity auto logout
+
+
+  // Inactivity logout timer
   useEffect(() => {
 
     if (!isLoggedIn) return;
@@ -115,23 +126,29 @@ function App() {
         setShowTimeout(true);
         handleLogout();
       }, 15 * 60 * 1000);
+
     };
 
     const events = ["mousemove","keydown","click","scroll","touchstart"];
 
-    events.forEach(e => window.addEventListener(e, resetTimer));
+    events.forEach(event => window.addEventListener(event, resetTimer));
 
     resetTimer();
 
     return () => {
-      events.forEach(e => window.removeEventListener(e, resetTimer));
+
+      events.forEach(event =>
+        window.removeEventListener(event, resetTimer)
+      );
 
       if (inactivityTimer.current) {
         clearTimeout(inactivityTimer.current);
       }
+
     };
 
   }, [isLoggedIn]);
+
 
 
   const handleLogin = ({ token, user: nextUser }) => {
@@ -142,6 +159,7 @@ function App() {
     if (token) {
       localStorage.setItem("petapp_token", token);
     }
+
   };
 
 
@@ -149,8 +167,11 @@ function App() {
 
     setAuthToken("");
     setUser(null);
+
     localStorage.removeItem("petapp_token");
+
   };
+
 
 
   function SessionTimeoutModal() {
@@ -168,6 +189,7 @@ function App() {
         justifyContent:"center",
         zIndex:9999
       }}>
+
         <div style={{
           background:"#fff",
           padding:32,
@@ -181,7 +203,12 @@ function App() {
 
           <p>Your session has expired due to inactivity.</p>
 
-          <div style={{display:"flex",gap:16,justifyContent:"center",marginTop:24}}>
+          <div style={{
+            display:"flex",
+            gap:16,
+            justifyContent:"center",
+            marginTop:24
+          }}>
 
             <button
               onClick={()=>{
@@ -209,7 +236,20 @@ function App() {
   }
 
 
+
+  // Wait until user session restored
+  if (loadingUser) {
+    return (
+      <div style={{ textAlign:"center", marginTop:80 }}>
+        Loading...
+      </div>
+    );
+  }
+
+
+
   return (
+
     <BrowserRouter>
 
       {showTimeout && <SessionTimeoutModal />}
@@ -223,7 +263,10 @@ function App() {
       />
 
     </BrowserRouter>
+
   );
+
 }
+
 
 export default App;
