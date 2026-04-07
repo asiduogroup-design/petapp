@@ -10,9 +10,9 @@ import LoginRegister from "./pages/LoginRegister";
 import AdminDashboard from "./pages/AdminDashboard";
 import { Navigate } from "react-router-dom";
 
+
 function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
   const { pathname } = useLocation();
-
   return (
     <>
       <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={onLogout} />
@@ -25,7 +25,6 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
           element={<DoctorsAppointment isLoggedIn={isLoggedIn} user={user} authToken={authToken} />}
         />
         <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
-    
         <Route
           path="/admin"
           element={
@@ -42,7 +41,7 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
       {pathname !== "/login" && <Footer />}
     </>
   );
-
+}
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState(null);
   const [showTimeout, setShowTimeout] = useState(false);
