@@ -1,3 +1,10 @@
+
+import { Router } from "express";
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+
+const router = Router();
+
 // Middleware to require any authenticated user
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -24,11 +31,6 @@ router.get("/me", requireAuth, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-import { Router } from "express";
-import User from "../models/User.js";
-import jwt from "jsonwebtoken";
-
-const router = Router();
 
 function requireAdmin(req, res, next) {
   const authHeader = req.headers.authorization;
