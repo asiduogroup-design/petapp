@@ -122,4 +122,3 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
       />
     </BrowserRouter>
   );
-}
