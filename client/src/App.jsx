@@ -122,6 +122,5 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
       />
     </BrowserRouter>
   );
-}
 
 export default App;
