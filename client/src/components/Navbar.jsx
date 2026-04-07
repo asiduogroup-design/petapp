@@ -15,9 +15,8 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
   return (
     <nav className="navbar">
       <div className="container">
-        <div className="nav-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          {/* Logo left */}
-          <Link to="/" className="nav-logo" onClick={() => setOpen(false)} style={{ marginRight: 0 }}>
+        <div className="nav-inner">
+          <Link to="/" className="nav-logo" onClick={() => setOpen(false)}>
             <img
               src="https://res.cloudinary.com/dlx9tnj7p/image/upload/v1775200169/Kalyaan_Pet_Shop_logo_design_qxfec5.png"
               alt="Kalyan Pet Shop"
@@ -26,53 +25,39 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
               referrerPolicy="no-referrer"
             />
           </Link>
-          {/* Hamburger right */}
-          <button
-            className="hamburger"
-            style={{ marginLeft: 'auto', marginRight: 0 }}
-            onClick={() => setOpen((prev) => !prev)}
-            aria-label="Toggle menu"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
-        {/* Mobile menu overlay */}
-        <ul className={`nav-menu${open ? " open" : ""}`} style={{ position: open ? 'absolute' : undefined, top: 70, left: 0, right: 0, background: '#fff', zIndex: 1000, flexDirection: 'column', alignItems: 'center', display: open ? 'flex' : 'none', boxShadow: open ? '0 2px 16px #3332' : undefined }}>
-          {navLinks.map((link) => (
-            <li key={link.to} style={{ width: '100%', textAlign: 'center', margin: '0.5rem 0' }}>
-              <NavLink
-                to={link.to}
-                end={link.to === "/"}
-                className={({ isActive }) => (isActive ? "active" : "")}
-                onClick={() => setOpen(false)}
-                style={{ display: 'block', padding: '0.75rem 0', fontSize: '1.1rem' }}
-              >
-                {link.label}
-              </NavLink>
-            </li>
-          ))}
-          {/* Admin link only for admin role */}
-          {user && user.role === "admin" && (
-            <li style={{ width: '100%', textAlign: 'center', margin: '0.5rem 0' }}>
-              <NavLink
-                to="/admin"
-                className={({ isActive }) => (isActive ? "active" : "")}
-                onClick={() => setOpen(false)}
-                style={{ display: 'block', padding: '0.75rem 0', fontSize: '1.1rem', background: '#ccfbf1', borderRadius: 8 }}
-              >
-                Admin
-              </NavLink>
-            </li>
-          )}
-          {/* Always show login/logout in mobile menu */}
-          <li style={{ width: '100%', textAlign: 'center', margin: '0.5rem 0' }}>
+
+          <ul className={`nav-menu${open ? " open" : ""}`}>
+            {navLinks.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  end={link.to === "/"}
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
+            {/* Admin link only for admin role */}
+            {user && user.role === "admin" && (
+              <li>
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={() => setOpen(false)}
+                >
+                  Admin
+                </NavLink>
+              </li>
+            )}
+          </ul>
+
+          <div className="nav-actions">
             {isLoggedIn ? (
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
-                style={{ width: '90%', margin: '0.5rem auto' }}
                 onClick={() => {
                   onLogout();
                   setOpen(false);
@@ -81,14 +66,21 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
                 Logout
               </button>
             ) : (
-              <Link to="/login" className="btn btn-primary btn-sm" style={{ width: '90%', margin: '0.5rem auto', display: 'inline-block' }} onClick={() => setOpen(false)}>
+              <Link to="/login" className="btn btn-primary btn-sm" onClick={() => setOpen(false)}>
                 Login
               </Link>
             )}
-          </li>
-        </ul>
-        {/* Desktop nav actions (hidden on mobile) */}
-        <div className="nav-actions" style={{ display: 'none' }} />
+            <button
+              className="hamburger"
+              onClick={() => setOpen((prev) => !prev)}
+              aria-label="Toggle menu"
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
+        </div>
       </div>
     </nav>
   );
