@@ -164,7 +164,7 @@
     display: block;
     height: 4px;
     width: 24px;
-    background: #007bff !important;
+    background: #222 !important;
     margin: 4px 0;
     border-radius: 2px;
     transition: 0.3s;
