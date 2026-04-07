@@ -154,20 +154,9 @@
     margin-left: auto;
     margin-right: 0;
     z-index: 1200;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 0;
-  }
-  .hamburger span {
-    display: block;
-    height: 4px;
-    width: 24px;
-    background: #222 !important;
-    margin: 4px 0;
-    border-radius: 2px;
-    transition: 0.3s;
+    background: #fff;
+    box-shadow: 0 1px 4px #0002;
+    border-radius: 8px;
   }
 }
 
