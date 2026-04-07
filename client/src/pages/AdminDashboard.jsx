@@ -124,17 +124,17 @@ export default function AdminDashboard() {
 
   // Render
   return (
-    <div style={{ display: "flex", minHeight: "80vh" }}>
+    <div className="admin-dashboard-main" style={{ display: 'flex', flexDirection: 'row', minHeight: '80vh', width: '100%' }}>
       {/* Sidebar */}
-      <aside style={{ width: 220, background: "#f7f7fa", padding: 24, borderRight: "1px solid #eee" }}>
-        <h3 style={{ marginBottom: 32, color: "#333" }}>Admin</h3>
+      <aside className="admin-dashboard-sidebar" style={{ width: 220, background: '#f7f7fa', padding: 24, borderRight: '1px solid #eee', minWidth: 180 }}>
+        <h3 style={{ marginBottom: 32, color: '#333' }}>Admin</h3>
         {SIDEBAR.map(tab => (
           <div
             key={tab.key}
-            onClick={() => { setSection(tab.key); setPage(1); setSearch(""); }}
+            onClick={() => { setSection(tab.key); setPage(1); setSearch(''); }}
             style={{
-              display: "flex", alignItems: "center", gap: 12, cursor: "pointer",
-              padding: "10px 0", color: section === tab.key ? "#007bff" : "#333",
+              display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+              padding: '10px 0', color: section === tab.key ? '#007bff' : '#333',
               fontWeight: section === tab.key ? 600 : 400,
             }}
           >
@@ -143,9 +143,9 @@ export default function AdminDashboard() {
         ))}
       </aside>
       {/* Main Content */}
-      <main style={{ flex: 1, padding: 32 }}>
+      <main className="admin-dashboard-content" style={{ flex: 1, padding: 24, overflowX: 'auto', minWidth: 0 }}>
         {/* Dashboard Stats */}
-        <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
+        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           <StatCard label="Total Users" value={stats.users} icon={<FaUser />} />
           <StatCard label="Active Users" value={stats.active} icon={<FaCheck />} />
           <StatCard label="Blocked Users" value={stats.blocked} icon={<FaBan />} />
@@ -158,21 +158,23 @@ export default function AdminDashboard() {
           placeholder={`Search ${section}...`}
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
-          style={{ marginBottom: 16, padding: 8, width: 240, borderRadius: 6, border: "1px solid #ccc" }}
+          style={{ marginBottom: 16, padding: 8, width: '100%', maxWidth: 320, borderRadius: 6, border: '1px solid #ccc' }}
         />
         {/* Section Content */}
-        {section === "users" && (
-          <UserTable users={paginate(users)[0]} onAction={handleUserAction} loading={loading} error={error} actionMsg={actionMsg} />
-        )}
-        {section === "products" && (
-          <ProductTable products={paginate(products)[0]} loading={loading} error={error} />
-        )}
-        {section === "orders" && (
-          <OrderTable orders={paginate(orders)[0]} loading={loading} error={error} />
-        )}
+        <div className="responsive-table">
+          {section === 'users' && (
+            <UserTable users={paginate(users)[0]} onAction={handleUserAction} loading={loading} error={error} actionMsg={actionMsg} />
+          )}
+          {section === 'products' && (
+            <ProductTable products={paginate(products)[0]} loading={loading} error={error} />
+          )}
+          {section === 'orders' && (
+            <OrderTable orders={paginate(orders)[0]} loading={loading} error={error} />
+          )}
+        </div>
         {/* Pagination */}
         <Pagination page={page} setPage={setPage} total={paginate(
-          section === "users" ? users : section === "products" ? products : orders
+          section === 'users' ? users : section === 'products' ? products : orders
         )[1]} perPage={perPage} />
       </main>
     </div>
