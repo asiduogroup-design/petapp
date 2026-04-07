@@ -29,13 +29,13 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
           {/* Hamburger right */}
           <button
             className="hamburger"
-            style={{ marginLeft: "auto", marginRight: 0 }}
+            style={{ marginLeft: 'auto', marginRight: 0 }}
             onClick={() => setOpen((prev) => !prev)}
             aria-label="Toggle menu"
           >
-            <span style={{ backgroundColor: "#007bff", display: "block", height: "3px", width: "25px", margin: "4px 0" }} />
-            <span style={{ backgroundColor: "#007bff", display: "block", height: "3px", width: "25px", margin: "4px 0" }} />
-            <span style={{ backgroundColor: "#007bff", display: "block", height: "3px", width: "25px", margin: "4px 0" }} />
+            <span />
+            <span />
+            <span />
           </button>
         </div>
         {/* Mobile menu overlay */}
