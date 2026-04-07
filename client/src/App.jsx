@@ -96,6 +96,7 @@ function App() {
 
   // Show loading spinner or nothing while restoring user
   if (loadingUser) {
+    // Don't render Layout or Navbar until user is loaded
     return <div style={{textAlign:'center',marginTop:60}}>Loading...</div>;
   }
 
