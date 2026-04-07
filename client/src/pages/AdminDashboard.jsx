@@ -124,10 +124,10 @@ export default function AdminDashboard() {
 
   // Render
   return (
-    <div style={{ display: "flex", minHeight: "80vh" }}>
+    <div className="admin-dashboard-main">
       {/* Sidebar */}
-      <aside style={{ width: 220, background: "#f7f7fa", padding: 24, borderRight: "1px solid #eee" }}>
-        <h3 style={{ marginBottom: 32, color: "#333" }}>Admin</h3>
+      <aside className="admin-dashboard-sidebar">
+        <h3>Admin</h3>
         {SIDEBAR.map(tab => (
           <div
             key={tab.key}
@@ -143,9 +143,9 @@ export default function AdminDashboard() {
         ))}
       </aside>
       {/* Main Content */}
-      <main style={{ flex: 1, padding: 32 }}>
+      <main className="admin-dashboard-content">
         {/* Dashboard Stats */}
-        <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
+        <div style={{ display: "flex", gap: 24, marginBottom: 32, flexWrap: "wrap" }}>
           <StatCard label="Total Users" value={stats.users} icon={<FaUser />} />
           <StatCard label="Active Users" value={stats.active} icon={<FaCheck />} />
           <StatCard label="Blocked Users" value={stats.blocked} icon={<FaBan />} />
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
           placeholder={`Search ${section}...`}
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
-          style={{ marginBottom: 16, padding: 8, width: 240, borderRadius: 6, border: "1px solid #ccc" }}
+          style={{ marginBottom: 16, padding: 8, width: 240, borderRadius: 6, border: "1px solid #ccc", maxWidth: "100%" }}
         />
         {/* Section Content */}
         {section === "users" && (
@@ -196,10 +196,10 @@ function UserTable({ users, onAction, loading, error, actionMsg }) {
   if (loading) return <div>Loading users...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   return (
-    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24, overflowX: "auto" }} className="responsive-table">
       <h3 style={{ marginBottom: 16 }}>User Management</h3>
       {actionMsg && <div style={{ color: "green", marginBottom: 10 }}>{actionMsg}</div>}
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 600 }}>
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
             <th style={{ textAlign: "center" }}>Name</th>
@@ -253,9 +253,9 @@ function ProductTable({ products, loading, error }) {
   if (loading) return <div>Loading products...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   return (
-    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24, overflowX: "auto" }} className="responsive-table">
       <h3 style={{ marginBottom: 16 }}>Product Management</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
             <th>Name</th>
@@ -288,9 +288,9 @@ function OrderTable({ orders, loading, error }) {
   if (loading) return <div>Loading orders...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   return (
-    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24, overflowX: "auto" }} className="responsive-table">
       <h3 style={{ marginBottom: 16 }}>Order Management</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
             <th>Order ID</th>
