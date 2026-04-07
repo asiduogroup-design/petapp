@@ -42,7 +42,6 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
       {pathname !== "/login" && <Footer />}
     </>
   );
-}
 
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState(null);
