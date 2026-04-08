@@ -22,6 +22,12 @@ app.get("/api/health", (_req, res) => {
 });
 
 
+
+// Register all routes
+app.use("/api/auth", authRoutes);
+app.use("/api/pets", petRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
 
 app.use((err, _req, res, _next) => {
