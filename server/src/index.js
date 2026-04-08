@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.js";
 import petRoutes from "./routes/pets.js";
 import userRoutes from "./routes/users.js";
 import orderRoutes from "./routes/orders.js";
+import productRoutes from "./routes/products.js";
 
 dotenv.config();
 
@@ -20,10 +21,8 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", service: "petapp-api" });
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/pets", petRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/orders", orderRoutes);
+
+app.use("/api/products", productRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
