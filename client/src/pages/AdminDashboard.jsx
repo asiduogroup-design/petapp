@@ -73,8 +73,8 @@ export default function AdminDashboard() {
           active: usersData.filter(u => !u.isBlocked).length,
           blocked: usersData.filter(u => u.isBlocked).length,
         }));
-        // Products (pets)
-        const resP = await fetch(`${API_BASE}/api/pets`);
+        // Products
+        const resP = await fetch(`${API_BASE}/api/products`);
         const productsData = await resP.json();
         setProducts(productsData);
         setStats(s => ({ ...s, products: productsData.length }));
@@ -177,108 +177,89 @@ export default function AdminDashboard() {
         )}
         {section === "products" && (
           <>
-            <button
-              className="btn btn-primary"
-              style={{ marginBottom: 16 }}
-              onClick={() => setShowAddProduct(true)}
+            <form
+              style={{ background: "#fff", padding: 24, borderRadius: 12, minWidth: 320, boxShadow: "0 2px 8px #eee", marginBottom: 24, maxWidth: 480 }}
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setAddProductLoading(true);
+                setAddProductError("");
+                try {
+                  const res = await fetch(`${API_BASE}/api/products`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(addProductForm),
+                  });
+                  if (!res.ok) throw new Error((await res.json()).message || "Failed to add product");
+                  setAddProductForm({ name: "", category: "food", quantity: 1, description: "" });
+                  // Refresh products
+                  const resP = await fetch(`${API_BASE}/api/products`);
+                  setProducts(await resP.json());
+                  setStats(s => ({ ...s, products: products.length + 1 }));
+                  setActionMsg("Product added successfully!");
+                } catch (err) {
+                  setAddProductError(err.message);
+                } finally {
+                  setAddProductLoading(false);
+                }
+              }}
             >
-              + Add Product
-            </button>
-            <ProductTable products={paginate(products)[0]} loading={loading} error={error} />
-            {showAddProduct && (
-              <div style={{
-                position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.25)", zIndex: 2000,
-                display: "flex", alignItems: "center", justifyContent: "center"
-              }} onClick={() => setShowAddProduct(false)}>
-                <form
-                  style={{ background: "#fff", padding: 32, borderRadius: 12, minWidth: 320, boxShadow: "0 2px 16px #0002", position: "relative" }}
-                  onClick={e => e.stopPropagation()}
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setAddProductLoading(true);
-                    setAddProductError("");
-                    try {
-                      const res = await fetch(`${API_BASE}/api/products`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify(addProductForm),
-                      });
-                      if (!res.ok) throw new Error((await res.json()).message || "Failed to add product");
-                      setShowAddProduct(false);
-                      setAddProductForm({ name: "", category: "food", quantity: 1, description: "" });
-                      // Refresh products
-                      const resP = await fetch(`${API_BASE}/api/products`);
-                      setProducts(await resP.json());
-                      setStats(s => ({ ...s, products: products.length + 1 }));
-                      setActionMsg("Product added successfully!");
-                    } catch (err) {
-                      setAddProductError(err.message);
-                    } finally {
-                      setAddProductLoading(false);
-                    }
-                  }}
-                >
-                  <h2 style={{ marginBottom: 16 }}>Add Product</h2>
-                  <div style={{ marginBottom: 12 }}>
-                    <label>Product Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={addProductForm.name}
-                      onChange={e => setAddProductForm(f => ({ ...f, name: e.target.value }))}
-                      style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
-                    />
-                  </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <label>Category</label>
-                    <select
-                      required
-                      value={addProductForm.category}
-                      onChange={e => setAddProductForm(f => ({ ...f, category: e.target.value }))}
-                      style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
-                    >
-                      <option value="food">Food</option>
-                      <option value="toys">Toys</option>
-                      <option value="medicines">Medicines</option>
-                      <option value="clothing">Clothing</option>
-                      <option value="accessories">Accessories</option>
-                    </select>
-                  </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <label>Quantity</label>
-                    <input
-                      type="number"
-                      min={1}
-                      required
-                      value={addProductForm.quantity}
-                      onChange={e => setAddProductForm(f => ({ ...f, quantity: Number(e.target.value) }))}
-                      style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
-                    />
-                  </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <label>Description</label>
-                    <textarea
-                      required
-                      value={addProductForm.description}
-                      onChange={e => setAddProductForm(f => ({ ...f, description: e.target.value }))}
-                      style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
-                    />
-                  </div>
-                  {addProductError && <div style={{ color: "red", marginBottom: 10 }}>{addProductError}</div>}
-                  <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                    <button type="submit" className="btn btn-primary" disabled={addProductLoading}>
-                      {addProductLoading ? "Adding..." : "Add Product"}
-                    </button>
-                    <button type="button" className="btn" onClick={() => setShowAddProduct(false)}>
-                      Cancel
-                    </button>
-                  </div>
-                </form>
+              <h2 style={{ marginBottom: 16 }}>Add Product</h2>
+              <div style={{ marginBottom: 12 }}>
+                <label>Product Name</label>
+                <input
+                  type="text"
+                  required
+                  value={addProductForm.name}
+                  onChange={e => setAddProductForm(f => ({ ...f, name: e.target.value }))}
+                  style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
+                />
               </div>
-            )}
+              <div style={{ marginBottom: 12 }}>
+                <label>Category</label>
+                <select
+                  required
+                  value={addProductForm.category}
+                  onChange={e => setAddProductForm(f => ({ ...f, category: e.target.value }))}
+                  style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
+                >
+                  <option value="food">Food</option>
+                  <option value="toys">Toys</option>
+                  <option value="medicines">Medicines</option>
+                  <option value="clothing">Clothing</option>
+                  <option value="accessories">Accessories</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  min={1}
+                  required
+                  value={addProductForm.quantity}
+                  onChange={e => setAddProductForm(f => ({ ...f, quantity: Number(e.target.value) }))}
+                  style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label>Description</label>
+                <textarea
+                  required
+                  value={addProductForm.description}
+                  onChange={e => setAddProductForm(f => ({ ...f, description: e.target.value }))}
+                  style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
+                />
+              </div>
+              {addProductError && <div style={{ color: "red", marginBottom: 10 }}>{addProductError}</div>}
+              <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+                <button type="submit" className="btn btn-primary" disabled={addProductLoading}>
+                  {addProductLoading ? "Adding..." : "Add Product"}
+                </button>
+              </div>
+            </form>
+            <ProductTable products={paginate(products)[0]} loading={loading} error={error} />
           </>
         )}
         {section === "orders" && (
@@ -373,8 +354,8 @@ function ProductTable({ products, loading, error }) {
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
             <th>Name</th>
-            <th>Species/Category</th>
-            <th>Age/Stock</th>
+            <th>Category</th>
+            <th>Stock</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -383,9 +364,9 @@ function ProductTable({ products, loading, error }) {
           {products.map((p) => (
             <tr key={p._id || p.id}>
               <td>{p.name}</td>
-              <td>{p.species}</td>
-              <td>{p.age}</td>
-              <td>{p.adopted ? "Inactive" : "Active"}</td>
+              <td>{p.category || p.cat || '-'}</td>
+              <td>{p.quantity ?? p.stock ?? '-'}</td>
+              <td>{p.status || (!p.adopted ? "Active" : "Inactive")}</td>
               <td>
                 <button style={iconBtnStyle}><FaEye /></button>
                 {/* Add edit/delete actions as needed */}

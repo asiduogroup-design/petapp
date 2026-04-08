@@ -1,62 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../lib/api";
 
-const allProducts = [
-  { id: 1, emoji: "🦴", name: "Premium Dog Kibble", cat: "Food", brand: "Pedigree", size: "Large", pet: "Dog", price: 899, stars: "★★★★★", rating: 5.0 },
-  { id: 2, emoji: "🐟", name: "Tuna & Shrimp Cat Treats", cat: "Food", brand: "Whiskas", size: "Medium", pet: "Cat", price: 349, stars: "★★★★☆", rating: 4.2 },
-  { id: 3, emoji: "🌿", name: "Organic Hamster Mix", cat: "Food", brand: "PetFresh", size: "Small", pet: "Others", price: 499, stars: "★★★★★", rating: 4.8 },
-  { id: 4, emoji: "🐾", name: "Paw-Print Collar", cat: "Accessories", brand: "PawSafe", size: "Medium", pet: "Dog", price: 599, stars: "★★★★★", rating: 4.9 },
-  { id: 5, emoji: "🎾", name: "Interactive Fetch Ball", cat: "Toys", brand: "PetZone", size: "Medium", pet: "Dog", price: 399, stars: "★★★★★", rating: 4.7 },
-  { id: 6, emoji: "🏡", name: "Orthopedic Pet Bed", cat: "Accessories", brand: "PawSafe", size: "Large", pet: "Dog", price: 1599, stars: "★★★★☆", rating: 4.5 },
-  { id: 7, emoji: "💊", name: "Daily Multivitamin Chews", cat: "Medicine", brand: "VetPlus", size: "Small", pet: "Others", price: 1099, stars: "★★★★☆", rating: 4.3 },
-  { id: 8, emoji: "🦮", name: "Retractable Dog Leash", cat: "Accessories", brand: "PawSafe", size: "Large", pet: "Dog", price: 749, stars: "★★★★★", rating: 4.8 },
-  { id: 9, emoji: "🧸", name: "Catnip Plush Mouse", cat: "Toys", brand: "PetZone", size: "Small", pet: "Cat", price: 299, stars: "★★★★☆", rating: 4.1 },
-  { id: 10, emoji: "💉", name: "Flea & Tick Drops", cat: "Medicine", brand: "VetPlus", size: "Medium", pet: "Dog", price: 1399, stars: "★★★★★", rating: 4.9 },
-  { id: 11, emoji: "🐠", name: "Tropical Fish Flakes", cat: "Food", brand: "PetFresh", size: "Small", pet: "Fish", price: 199, stars: "★★★★☆", rating: 4.0 },
-  { id: 12, emoji: "🛁", name: "Gentle Pet Shampoo", cat: "Accessories", brand: "PetFresh", size: "Medium", pet: "Cat", price: 549, stars: "★★★★★", rating: 4.7 },
-  { id: 13, emoji: "🐦", name: "Bird Seed Mix", cat: "Food", brand: "PetFresh", size: "Small", pet: "Bird", price: 249, stars: "★★★★☆", rating: 4.2 },
-  { id: 14, emoji: "🪹", name: "Bird Perch & Swing Set", cat: "Accessories", brand: "PetZone", size: "Medium", pet: "Bird", price: 699, stars: "★★★★★", rating: 4.6 },
-  { id: 15, emoji: "🐡", name: "Aquarium Gravel & Decor", cat: "Accessories", brand: "PawSafe", size: "Large", pet: "Fish", price: 449, stars: "★★★★☆", rating: 4.3 },
-];
 
-const categories = ["All", "Food", "Toys", "Accessories", "Medicine"];
-const brands = ["All", "Pedigree", "Whiskas", "PetFresh", "PawSafe", "PetZone", "VetPlus"];
-const sizes = ["All", "Small", "Medium", "Large"];
-
-const petTypes = [
-  { label: "All Pets", icon: "🐾" },
-  { label: "Dog", icon: "🐕" },
-  { label: "Cat", icon: "🐈" },
-  { label: "Bird", icon: "🐦" },
-  { label: "Fish", icon: "🐟" },
-  { label: "Others", icon: "🐾" },
-];
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function Products({ isLoggedIn, authToken }) {
   const navigate = useNavigate();
-  const [active, setActive] = useState("All");
-  const [activeBrand, setActiveBrand] = useState("All");
-  const [activeSize, setActiveSize] = useState("All");
-  const [activePet, setActivePet] = useState("All Pets");
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [orderingId, setOrderingId] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+    const [active, setActive] = useState("All");
+    const [activeBrand, setActiveBrand] = useState("All");
+    const [activeSize, setActiveSize] = useState("All");
+    const [activePet, setActivePet] = useState("All Pets");
+    const [search, setSearch] = useState("");
+    const [sortBy, setSortBy] = useState("");
+    const [filterOpen, setFilterOpen] = useState(false);
+    const [orderingId, setOrderingId] = useState(null);
 
-  const visible = allProducts
+  useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch(`${API_BASE}/api/products`);
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  const categories = ["All", "Food", "Toys", "Accessories", "Medicine"];
+  const brands = ["All", "Pedigree", "Whiskas", "PetFresh", "PawSafe", "PetZone", "VetPlus"];
+  const sizes = ["All", "Small", "Medium", "Large"];
+  const petTypes = [
+    { label: "All Pets", icon: "🐾" },
+    { label: "Dog", icon: "🐕" },
+    { label: "Cat", icon: "🐈" },
+    { label: "Bird", icon: "🐦" },
+    { label: "Fish", icon: "🐟" },
+    { label: "Others", icon: "🐾" },
+  ];
+
+  const visible = products
     .filter((p) => {
-      const matchCat = active === "All" || p.cat === active;
+      const matchCat = active === "All" || p.category === active || p.cat === active;
       const matchBrand = activeBrand === "All" || p.brand === activeBrand;
       const matchSize = activeSize === "All" || p.size === activeSize;
       const matchPet = activePet === "All Pets" || p.pet === activePet;
-      const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
       return matchCat && matchBrand && matchSize && matchPet && matchSearch;
     })
     .sort((a, b) => {
-      if (sortBy === "low-to-high") return a.price - b.price;
-      if (sortBy === "high-to-low") return b.price - a.price;
-      if (sortBy === "newest") return b.id - a.id;
+      if (sortBy === "low-to-high") return (a.price || 0) - (b.price || 0);
+      if (sortBy === "high-to-low") return (b.price || 0) - (a.price || 0);
+      if (sortBy === "newest") return (b._id || b.id || 0) - (a._id || a.id || 0);
       return 0;
     });
 
@@ -99,6 +104,9 @@ export default function Products({ isLoggedIn, authToken }) {
       setOrderingId(null);
     }
   };
+
+  if (loading) return <div>Loading products...</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
 
   return (
     <>
@@ -219,8 +227,8 @@ export default function Products({ isLoggedIn, authToken }) {
             </p>
           ) : (
             <div className="products-grid">
-              {visible.map((p) => (
-                <div key={p.id} className="product-card">
+              {visible.map((p, idx) => (
+                <div key={p._id || p.id || idx} className="product-card">
                   <div className="product-img">{p.emoji}</div>
                   <div className="product-body">
                     <span className="product-cat">{p.cat}</span>
@@ -228,7 +236,7 @@ export default function Products({ isLoggedIn, authToken }) {
                     <p className="product-star">
                       {p.stars} ({p.rating})
                     </p>
-                    <p className="product-price">₹{p.price.toLocaleString("en-IN")}</p>
+                    <p className="product-price">₹{Number(p.price ?? 0).toLocaleString("en-IN")}</p>
                     <div className="product-meta">
                       <span>{p.brand}</span>
                       <span>{p.size}</span>
