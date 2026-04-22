@@ -8,6 +8,7 @@ import petRoutes from "./routes/pets.js";
 import userRoutes from "./routes/users.js";
 import orderRoutes from "./routes/orders.js";
 import productRoutes from "./routes/products.js";
+import appointmentRoutes from "./routes/appointments.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/pets", petRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

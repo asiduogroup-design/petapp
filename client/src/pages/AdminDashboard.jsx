@@ -1,42 +1,23 @@
-  // Delete order (admin only)
-  async function handleDeleteOrder(orderId) {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
-    try {
-      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setActionMsg(data.message || "Order deleted");
-      // Refresh orders
-      const resO = await fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
-      if (resO.ok) {
-        const ordersData = await resO.json();
-        setOrders(ordersData);
-        setStats(s => ({ ...s, orders: ordersData.length }));
-      }
-    } catch (err) {
-      setActionMsg("Order deletion failed");
-    }
-  }
 import { useEffect, useState } from "react";
+import { FaUser, FaBox, FaClipboardList, FaCheck, FaBan, FaTrash, FaEye, FaCalendarAlt } from "react-icons/fa";
 
 // Use VITE_API_URL from .env, fallback to relative path for local dev
 const API_BASE = import.meta.env.VITE_API_URL || "";
-import { FaUser, FaBox, FaClipboardList, FaCheck, FaBan, FaTrash, FaEye } from "react-icons/fa";
 
 const SIDEBAR = [
   { key: "users", label: "Users", icon: <FaUser /> },
   { key: "products", label: "Products", icon: <FaBox /> },
   { key: "orders", label: "Orders", icon: <FaClipboardList /> },
+  { key: "appointments", label: "Doctor Appointments", icon: <FaCalendarAlt /> },
 ];
 
 export default function AdminDashboard() {
   const [section, setSection] = useState("users");
-  const [stats, setStats] = useState({ users: 0, products: 0, orders: 0, active: 0, blocked: 0 });
+  const [stats, setStats] = useState({ users: 0, products: 0, orders: 0, active: 0, blocked: 0, appointments: 0 });
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionMsg, setActionMsg] = useState("");
@@ -79,6 +60,13 @@ export default function AdminDashboard() {
         setProducts(productsData);
         setStats(s => ({ ...s, products: productsData.length }));
         // Orders
+                // Appointments
+                const resA = await fetch(`${API_BASE}/api/appointments`, { headers: { Authorization: `Bearer ${token}` } });
+                if (resA.ok) {
+                  const appointmentsData = await resA.json();
+                  setAppointments(appointmentsData);
+                  setStats(s => ({ ...s, appointments: appointmentsData.length }));
+                }
         const resO = await fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
         if (resO.ok) {
           const ordersData = await resO.json();
@@ -124,6 +112,28 @@ export default function AdminDashboard() {
     }
   }
 
+  // Delete order (admin only)
+  async function handleDeleteOrder(orderId) {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setActionMsg(data.message || "Order deleted");
+
+      const resO = await fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } });
+      if (resO.ok) {
+        const ordersData = await resO.json();
+        setOrders(ordersData);
+        setStats((s) => ({ ...s, orders: ordersData.length }));
+      }
+    } catch (err) {
+      setActionMsg("Order deletion failed");
+    }
+  }
+
   // Pagination and search helpers
   function paginate(arr) {
     const filtered = arr.filter(u =>
@@ -162,6 +172,7 @@ export default function AdminDashboard() {
           <StatCard label="Blocked Users" value={stats.blocked} icon={<FaBan />} />
           <StatCard label="Total Products" value={stats.products} icon={<FaBox />} />
           <StatCard label="Total Orders" value={stats.orders} icon={<FaClipboardList />} />
+                  <StatCard label="Appointments" value={stats.appointments} icon={<FaCalendarAlt />} />
         </div>
         {/* Search bar */}
         <input
@@ -263,11 +274,14 @@ export default function AdminDashboard() {
           </>
         )}
         {section === "orders" && (
-          <OrderTable orders={paginate(orders)[0]} loading={loading} error={error} />
+          <OrderTable orders={paginate(orders)[0]} loading={loading} error={error} onDelete={handleDeleteOrder} />
+        )}
+        {section === "appointments" && (
+          <AppointmentTable appointments={paginate(appointments)[0]} loading={loading} error={error} />
         )}
         {/* Pagination */}
         <Pagination page={page} setPage={setPage} total={paginate(
-          section === "users" ? users : section === "products" ? products : orders
+          section === "users" ? users : section === "products" ? products : section === "appointments" ? appointments : orders
         )[1]} perPage={perPage} />
       </main>
     </div>
@@ -379,7 +393,7 @@ function ProductTable({ products, loading, error }) {
   );
 }
 
-function OrderTable({ orders, loading, error }) {
+function OrderTable({ orders, loading, error, onDelete }) {
   if (loading) return <div>Loading orders...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   return (
@@ -404,9 +418,58 @@ function OrderTable({ orders, loading, error }) {
               <td>{o.status}</td>
               <td>
                 <button style={iconBtnStyle}><FaEye /></button>
-                <button style={{ ...iconBtnStyle, color: "#d9534f" }} onClick={() => handleDeleteOrder(o._id)} title="Delete Order"><FaTrash /></button>
+                <button style={{ ...iconBtnStyle, color: "#d9534f" }} onClick={() => onDelete(o._id)} title="Delete Order"><FaTrash /></button>
                 {/* Add update/cancel actions as needed */}
               </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AppointmentTable({ appointments, loading, error }) {
+  if (loading) return <div>Loading appointments...</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (!appointments.length) return <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>No appointments found.</div>;
+  return (
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24, overflowX: "auto" }} className="responsive-table">
+      <h3 style={{ marginBottom: 16 }}>Doctor Appointments</h3>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
+        <thead>
+          <tr style={{ background: "#f7f7fa" }}>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Patient Name</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Phone</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Email</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Pet</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Doctor</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Date</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Time</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Issue</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Status</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Booked On</th>
+          </tr>
+        </thead>
+        <tbody>
+          {appointments.map((a) => (
+            <tr key={a._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
+              <td style={{ padding: "10px 12px" }}>{a.name}</td>
+              <td style={{ padding: "10px 12px" }}>{a.phone}</td>
+              <td style={{ padding: "10px 12px" }}>{a.email}</td>
+              <td style={{ padding: "10px 12px" }}>{a.petName} ({a.petType})</td>
+              <td style={{ padding: "10px 12px" }}>{a.doctor}</td>
+              <td style={{ padding: "10px 12px" }}>{a.date}</td>
+              <td style={{ padding: "10px 12px" }}>{a.time}</td>
+              <td style={{ padding: "10px 12px", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.issue || "-"}</td>
+              <td style={{ padding: "10px 12px" }}>
+                <span style={{
+                  padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  background: a.status === "confirmed" ? "#d4edda" : a.status === "cancelled" ? "#f8d7da" : "#fff3cd",
+                  color: a.status === "confirmed" ? "#155724" : a.status === "cancelled" ? "#721c24" : "#856404",
+                }}>{a.status}</span>
+              </td>
+              <td style={{ padding: "10px 12px" }}>{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "-"}</td>
             </tr>
           ))}
         </tbody>
