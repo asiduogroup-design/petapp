@@ -3,12 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { apiRequest } from "../lib/api";
 
 const doctors = [
-  { id: 1, avatar: "👨‍⚕️", name: "Dr. doctor1", spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon-Fri", fee: "$60" },
-  { id: 2, avatar: "👩‍⚕️", name: "Dr. doctor2", spec: "Animal Surgeon", exp: "9 yrs", rating: "★★★★★ 4.8", avail: "Mon-Sat", fee: "$80" },
-  { id: 3, avatar: "👨‍⚕️", name: "Dr. doctor3", spec: "Pet Behaviourist", exp: "7 yrs", rating: "★★★★☆ 4.6", avail: "Tue-Sat", fee: "$65" },
-  { id: 4, avatar: "👩‍⚕️", name: "Dr. doctor4", spec: "Dermatologist", exp: "11 yrs", rating: "★★★★★ 4.9", avail: "Mon-Thu", fee: "$70" },
-  { id: 5, avatar: "👨‍⚕️", name: "Dr. doctor5", spec: "Dental Specialist", exp: "8 yrs", rating: "★★★★☆ 4.5", avail: "Wed-Sun", fee: "$75" },
-  { id: 6, avatar: "👩‍⚕️", name: "Dr. doctor6", spec: "Nutritionist", exp: "6 yrs", rating: "★★★★★ 4.7", avail: "Mon-Fri", fee: "$55" },
+  { id: 1, avatar: "👨‍⚕️", name: "Dr. doctor1", spec: "General Veterinarian", exp: "12 yrs", rating: "★★★★★ 4.9", avail: "Mon-Fri", fee: "₹4,500" },
+  { id: 2, avatar: "👩‍⚕️", name: "Dr. doctor2", spec: "Animal Surgeon", exp: "9 yrs", rating: "★★★★★ 4.8", avail: "Mon-Sat", fee: "₹6,000" },
+  { id: 3, avatar: "👨‍⚕️", name: "Dr. doctor3", spec: "Pet Behaviourist", exp: "7 yrs", rating: "★★★★☆ 4.6", avail: "Tue-Sat", fee: "₹5,000" },
+  { id: 4, avatar: "👩‍⚕️", name: "Dr. doctor4", spec: "Dermatologist", exp: "11 yrs", rating: "★★★★★ 4.9", avail: "Mon-Thu", fee: "₹5,500" },
+  { id: 5, avatar: "👨‍⚕️", name: "Dr. doctor5", spec: "Dental Specialist", exp: "8 yrs", rating: "★★★★☆ 4.5", avail: "Wed-Sun", fee: "₹5,800" },
+  { id: 6, avatar: "👩‍⚕️", name: "Dr. doctor6", spec: "Nutritionist", exp: "6 yrs", rating: "★★★★★ 4.7", avail: "Mon-Fri", fee: "₹4,000" },
 ];
 
 const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
@@ -41,8 +41,10 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
         ...prev, 
         doctor: `${doctor.name} - ${doctor.spec}` 
       }));
+      // Clear location state immediately so refresh doesn't repopulate the doctor
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state?.selectedDoctor]);
+  }, []);
 
   useEffect(() => {
     setForm((prev) => ({
@@ -80,6 +82,10 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
       });
       setSubmitted(true);
       setForm(getInitialForm(user));
+      // Clear location state to prevent form repopulation
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Reset success message after 3 seconds
+      setTimeout(() => setSubmitted(false), 3000);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
