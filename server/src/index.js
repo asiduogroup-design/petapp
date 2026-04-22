@@ -36,7 +36,19 @@ app.use((err, _req, res, _next) => {
 });
 
 connectDB().finally(() => {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+  });
+
+  server.on("error", (err) => {
+    if (err?.code === "EADDRINUSE") {
+      console.error(
+        `Port ${PORT} is already in use. Stop the other process or set a different PORT.`
+      );
+      process.exit(1);
+    }
+
+    console.error("Server failed to start:", err);
+    process.exit(1);
   });
 });
