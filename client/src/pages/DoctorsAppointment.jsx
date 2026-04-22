@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { apiRequest } from "../lib/api";
 
 const doctors = [
@@ -27,10 +27,22 @@ const getInitialForm = (user) => ({
 
 export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState(() => getInitialForm(user));
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Pre-select doctor if passed from Home page
+    if (location.state?.selectedDoctor) {
+      const doctor = location.state.selectedDoctor;
+      setForm((prev) => ({ 
+        ...prev, 
+        doctor: `${doctor.name} - ${doctor.spec}` 
+      }));
+    }
+  }, [location.state?.selectedDoctor]);
 
   useEffect(() => {
     setForm((prev) => ({

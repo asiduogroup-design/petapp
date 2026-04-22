@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import foodCategoryImage from "../assets/hero/food-category.svg";
 import toysCategoryImage from "../assets/hero/toys-category.svg";
 import medicinesCategoryImage from "../assets/hero/medicines-category.svg";
@@ -336,6 +336,12 @@ function ServicesSection() {
 }
 
 function DoctorsSection() {
+  const navigate = useNavigate();
+
+  const handleBookAppointment = (doctor) => {
+    navigate("/doctors", { state: { selectedDoctor: doctor } });
+  };
+
   return (
     <section className="section section-alt">
       <div className="container">
@@ -351,9 +357,12 @@ function DoctorsSection() {
               <p className="doctor-info">
                 {d.exp} · Available {d.avail}
               </p>
-              <Link to="/doctors" className="btn btn-primary btn-sm">
+              <button 
+                className="btn btn-primary btn-sm"
+                onClick={() => handleBookAppointment(d)}
+              >
                 Book Appointment
-              </Link>
+              </button>
             </div>
           ))}
         </div>
