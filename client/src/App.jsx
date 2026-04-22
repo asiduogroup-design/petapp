@@ -10,6 +10,7 @@ import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
 import LoginRegister from "./pages/LoginRegister";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 
 
 function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
@@ -41,6 +42,17 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
         />
 
         <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
+
+        <Route
+          path="/user"
+          element={
+            user ? (
+              <Profile />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
         <Route
           path="/admin"

@@ -9,7 +9,6 @@ const navLinks = [
 ];
 
 export default function Navbar({ isLoggedIn, user, onLogout }) {
-    console.log("Navbar user:", user);
   const [open, setOpen] = useState(false);
 
   return (
@@ -48,6 +47,17 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
                   onClick={() => setOpen(false)}
                 >
                   Admin
+                </NavLink>
+              </li>
+            )}
+            {user && user.role !== "admin" && (
+              <li>
+                <NavLink
+                  to="/user"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={() => setOpen(false)}
+                >
+                  My Account
                 </NavLink>
               </li>
             )}

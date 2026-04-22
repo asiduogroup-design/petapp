@@ -4,6 +4,7 @@ import { apiRequest } from "../lib/api";
 
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
+const WISHLIST_KEY = "petapp_wishlist";
 
 export default function Products({ isLoggedIn, authToken }) {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function Products({ isLoggedIn, authToken }) {
     const [sortBy, setSortBy] = useState("");
     const [filterOpen, setFilterOpen] = useState(false);
     const [orderingId, setOrderingId] = useState(null);
+    const [wishlistMap, setWishlistMap] = useState({});
 
   useEffect(() => {
     async function fetchProducts() {
@@ -35,6 +37,24 @@ export default function Products({ isLoggedIn, authToken }) {
       }
     }
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(WISHLIST_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      const nextMap = {};
+
+      parsed.forEach((item) => {
+        if (item?.id != null) {
+          nextMap[String(item.id)] = true;
+        }
+      });
+
+      setWishlistMap(nextMap);
+    } catch (_err) {
+      setWishlistMap({});
+    }
   }, []);
 
   const categories = ["All", "Food", "Toys", "Accessories", "Medicine"];
@@ -87,13 +107,15 @@ export default function Products({ isLoggedIn, authToken }) {
         method: "POST",
         token: authToken,
         body: {
-          productId: product.id,
-          productName: product.name,
-          category: product.cat,
-          brand: product.brand,
-          size: product.size,
-          price: product.price,
-          emoji: product.emoji,
+          items: [
+            {
+              productId: String(product._id || product.id || product.name),
+              name: product.name,
+              quantity: 1,
+              price: Number(product.price || 0),
+            },
+          ],
+          total: Number(product.price || 0),
         },
       });
 
@@ -102,6 +124,39 @@ export default function Products({ isLoggedIn, authToken }) {
       window.alert(error.message);
     } finally {
       setOrderingId(null);
+    }
+  };
+
+  const toggleWishlist = (product) => {
+    const productId = String(product.id ?? product._id ?? product.name);
+
+    try {
+      const raw = localStorage.getItem(WISHLIST_KEY);
+      const current = raw ? JSON.parse(raw) : [];
+      const exists = current.some((item) => String(item.id) === productId);
+
+      let next = [];
+
+      if (exists) {
+        next = current.filter((item) => String(item.id) !== productId);
+      } else {
+        next = [
+          ...current,
+          {
+            id: productId,
+            name: product.name,
+            category: product.category || product.cat,
+            cat: product.cat,
+            price: product.price,
+            emoji: product.emoji,
+          },
+        ];
+      }
+
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next));
+      setWishlistMap((prev) => ({ ...prev, [productId]: !exists }));
+    } catch (_err) {
+      window.alert("Could not update wishlist. Please try again.");
     }
   };
 
@@ -249,6 +304,13 @@ export default function Products({ isLoggedIn, authToken }) {
                         onClick={() => saveOrder(p)}
                       >
                         {orderingId === p.id ? "Adding..." : "Add to Cart"}
+                      </button>
+                      <button
+                        className="btn btn-outline btn-sm"
+                        onClick={() => toggleWishlist(p)}
+                        title="Toggle wishlist"
+                      >
+                        {wishlistMap[String(p.id ?? p._id ?? p.name)] ? "Saved" : "Wishlist"}
                       </button>
                     </div>
                   </div>
