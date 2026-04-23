@@ -443,6 +443,7 @@ function AppointmentTable({ appointments, loading, error }) {
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Phone</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Email</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Pet</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Count</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Doctor</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Date</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Time</th>
@@ -458,9 +459,10 @@ function AppointmentTable({ appointments, loading, error }) {
               <td style={{ padding: "10px 12px" }}>{a.phone}</td>
               <td style={{ padding: "10px 12px" }}>{a.email}</td>
               <td style={{ padding: "10px 12px" }}>{a.petName} ({a.petType})</td>
+              <td style={{ padding: "10px 12px" }}>{a.numberOfPets}</td>
               <td style={{ padding: "10px 12px" }}>{a.doctor}</td>
               <td style={{ padding: "10px 12px" }}>{a.date}</td>
-              <td style={{ padding: "10px 12px" }}>{a.time}</td>
+              <td style={{ padding: "10px 12px" }}>{a.timeSlot}</td>
               <td style={{ padding: "10px 12px", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.issue || "-"}</td>
               <td style={{ padding: "10px 12px" }}>
                 <span style={{

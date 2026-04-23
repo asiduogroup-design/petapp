@@ -20,13 +20,65 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Helper function to generate all 15-minute time slots for a day (8 AM to 8 PM)
+function generateTimeSlots() {
+  const slots = [];
+  for (let hour = 8; hour < 20; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      slots.push(`${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`);
+    }
+  }
+  return slots;
+}
+
+// GET /api/appointments/available/:doctor/:date - Get available time slots for a doctor
+router.get("/available/:doctor/:date", async (req, res) => {
+  try {
+    const { doctor, date } = req.params;
+    
+    console.log(`Fetching slots for doctor: "${doctor}" on date: ${date}`);
+    
+    // Generate all possible 15-minute slots from 8 AM to 8 PM
+    const allSlots = generateTimeSlots();
+    
+    // Find booked appointments for this doctor on this date
+    const bookedAppointments = await Appointment.find({
+      doctor: doctor,
+      date: date,
+      status: { $ne: "cancelled" },
+    });
+    
+    console.log(`Found ${bookedAppointments.length} booked appointments`);
+    
+    const bookedSlots = bookedAppointments.map((apt) => apt.timeSlot);
+    const availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
+    
+    res.json({ availableSlots, bookedSlots });
+  } catch (err) {
+    console.error("Error fetching available slots:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // POST /api/appointments - Book a new appointment
 router.post("/", requireAuth, async (req, res) => {
   try {
-    const { name, phone, email, petName, petType, doctor, date, time, issue } = req.body;
+    const { name, phone, email, petName, petType, numberOfPets, doctor, date, timeSlot, issue } = req.body;
 
-    if (!name || !phone || !email || !petName || !petType || !doctor || !date || !time) {
+    if (!name || !phone || !email || !petName || !petType || !numberOfPets || !doctor || !date || !timeSlot) {
       return res.status(400).json({ message: "All required fields must be filled." });
+    }
+
+    // Check if slot is already booked
+    const existingAppointment = await Appointment.findOne({
+      doctor,
+      date,
+      timeSlot,
+      status: { $ne: "cancelled" },
+    });
+
+    if (existingAppointment) {
+      return res.status(409).json({ message: "This time slot is already booked. Please select another." });
     }
 
     const appointment = await Appointment.create({
@@ -36,9 +88,10 @@ router.post("/", requireAuth, async (req, res) => {
       email,
       petName,
       petType,
+      numberOfPets,
       doctor,
       date,
-      time,
+      timeSlot,
       issue: issue || "",
     });
 

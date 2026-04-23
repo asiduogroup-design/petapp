@@ -7,9 +7,10 @@ const appointmentSchema = new mongoose.Schema({
   email: { type: String, required: true },
   petName: { type: String, required: true },
   petType: { type: String, required: true },
+  numberOfPets: { type: Number, required: true, min: 1, max: 10 },
   doctor: { type: String, required: true },
-  date: { type: String, required: true },
-  time: { type: String, required: true },
+  date: { type: String, required: true }, // Format: YYYY-MM-DD
+  timeSlot: { type: String, required: true }, // Format: HH:MM (24-hour format, e.g., "10:00")
   issue: { type: String, default: "" },
   status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending" },
   createdAt: { type: Date, default: Date.now },

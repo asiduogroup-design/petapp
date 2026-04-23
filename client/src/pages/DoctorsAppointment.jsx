@@ -11,7 +11,20 @@ const doctors = [
   { id: 6, avatar: "👩‍⚕️", name: "Dr. doctor6", spec: "Nutritionist", exp: "6 yrs", rating: "★★★★★ 4.7", avail: "Mon-Fri", fee: "₹4,000" },
 ];
 
-const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
+// Generate 15-minute time slots from 8 AM to 8 PM (48 slots total)
+function generateTimeSlots() {
+  const slots = [];
+  for (let hour = 8; hour < 20; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const displayHour = hour > 12 ? hour - 12 : hour;
+      const period = hour >= 12 ? "PM" : "AM";
+      const timeStr = `${String(displayHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      const displayTime = `${displayHour}:${String(minute).padStart(2, "0")} ${period}`;
+      slots.push({ time: timeStr, display: displayTime });
+    }
+  }
+  return slots;
+}
 
 const getInitialForm = (user) => ({
   name: user?.name || "",
@@ -19,9 +32,10 @@ const getInitialForm = (user) => ({
   email: user?.email || "",
   petName: "",
   petType: "",
+  numberOfPets: "",
   doctor: "",
   date: "",
-  time: "",
+  timeSlot: "",
   issue: "",
 });
 
@@ -32,6 +46,11 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  const allSlots = generateTimeSlots();
 
   useEffect(() => {
     // Pre-select doctor if passed from Home page
@@ -41,7 +60,6 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
         ...prev, 
         doctor: `${doctor.name} - ${doctor.spec}` 
       }));
-      // Clear location state immediately so refresh doesn't repopulate the doctor
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -55,7 +73,43 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
     }));
   }, [user]);
 
+  // Fetch available slots when doctor or date changes
+  useEffect(() => {
+    if (form.doctor && form.date) {
+      fetchAvailableSlots();
+    }
+  }, [form.doctor, form.date]);
+
+  const fetchAvailableSlots = async () => {
+    setLoadingSlots(true);
+    try {
+      // Use full doctor name as stored in database
+      const doctorName = form.doctor; // Keep full name like "Dr. doctor1 - General Veterinarian"
+      const response = await fetch(
+        `/api/appointments/available/${encodeURIComponent(doctorName)}/${form.date}`
+      );
+      const data = await response.json();
+      console.log("Booked slots:", data.bookedSlots); // Debug
+      setAvailableSlots(data.availableSlots || []);
+      setBookedSlots(data.bookedSlots || []);
+      // Reset timeSlot selection when slots change
+      setForm((prev) => ({ ...prev, timeSlot: "" }));
+    } catch (err) {
+      console.error("Error fetching slots:", err);
+      setAvailableSlots([]);
+      setBookedSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   const change = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const selectTimeSlot = (slotTime) => {
+    if (availableSlots.includes(slotTime)) {
+      setForm((prev) => ({ ...prev, timeSlot: slotTime }));
+    }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -64,6 +118,11 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
 
     if (!form.doctor) {
       setError("Please select a doctor from the list above or the dropdown.");
+      return;
+    }
+
+    if (!form.timeSlot) {
+      setError("Please select a time slot.");
       return;
     }
 
@@ -81,10 +140,10 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
         body: form,
       });
       setSubmitted(true);
+      // Immediately refresh available slots to show the newly booked slot as grey
+      await fetchAvailableSlots();
       setForm(getInitialForm(user));
-      // Clear location state to prevent form repopulation
       window.history.replaceState({}, document.title, window.location.pathname);
-      // Reset success message after 3 seconds
       setTimeout(() => setSubmitted(false), 3000);
     } catch (requestError) {
       setError(requestError.message);
@@ -96,6 +155,15 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
   const selectDoctor = (name, spec) => {
     setForm((prev) => ({ ...prev, doctor: `${name} - ${spec}` }));
     document.getElementById("booking-form").scrollIntoView({ behavior: "smooth" });
+  };
+
+  const getSlotStatus = (slotTime) => {
+    // If slot is in booked list, it's booked
+    if (bookedSlots && bookedSlots.length > 0 && bookedSlots.includes(slotTime)) {
+      return "booked";
+    }
+    // Otherwise it's available
+    return "available";
   };
 
   return (
@@ -179,6 +247,10 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
                   </select>
                 </div>
                 <div className="form-group">
+                  <label>Number of Pets *</label>
+                  <input type="number" name="numberOfPets" value={form.numberOfPets} onChange={change} placeholder="1" min="1" max="10" required />
+                </div>
+                <div className="form-group">
                   <label>Select Doctor *</label>
                   <select name="doctor" value={form.doctor} onChange={change} required>
                     <option value="">Choose a doctor</option>
@@ -200,15 +272,77 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label>Preferred Time *</label>
-                  <select name="time" value={form.time} onChange={change} required>
-                    <option value="">Pick a time</option>
-                    {timeSlots.map((t) => (
-                      <option key={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
+              </div>
+
+              {/* Visual Time Slot Picker */}
+              <div style={{ marginTop: "2rem", marginBottom: "2rem" }}>
+                <label style={{ display: "block", fontWeight: 600, marginBottom: "1rem" }}>
+                  Select Time Slot *
+                </label>
+                
+                {!form.doctor || !form.date ? (
+                  <p style={{ 
+                    textAlign: "center", 
+                    color: "var(--secondary)", 
+                    padding: "2rem",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "8px",
+                    fontStyle: "italic"
+                  }}>
+                    Select a doctor and date above to see available time slots
+                  </p>
+                ) : loadingSlots ? (
+                  <p style={{ textAlign: "center", color: "var(--secondary)", padding: "1rem" }}>Loading available slots...</p>
+                ) : (
+                  <>
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+                      gap: "8px",
+                      marginBottom: "1.5rem"
+                    }}>
+                      {allSlots.map((slot) => {
+                        const status = getSlotStatus(slot.time);
+                        const isSelected = form.timeSlot === slot.time;
+                        return (
+                          <button
+                            key={slot.time}
+                            type="button"
+                            onClick={() => selectTimeSlot(slot.time)}
+                            disabled={status === "booked"}
+                            style={{
+                              padding: "12px",
+                              border: "2px solid transparent",
+                              borderRadius: "8px",
+                              cursor: status === "booked" ? "not-allowed" : "pointer",
+                              fontWeight: 500,
+                              fontSize: "13px",
+                              transition: "all 0.2s",
+                              backgroundColor: isSelected
+                                ? "var(--primary)"
+                                : status === "booked"
+                                ? "#e0e0e0"
+                                : "#e8f5e9",
+                              color: isSelected ? "white" : status === "booked" ? "#999" : "var(--primary)",
+                              borderColor: isSelected ? "var(--primary)" : "transparent",
+                              opacity: status === "booked" ? 0.6 : 1,
+                            }}
+                          >
+                            {slot.display}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {form.timeSlot && (
+                      <p style={{ color: "var(--primary)", fontWeight: 600, marginBottom: "0.5rem" }}>
+                        ✓ Selected: {allSlots.find(s => s.time === form.timeSlot)?.display}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <div className="form-grid" style={{ marginTop: "1.5rem" }}>
                 <div className="form-group full">
                   <label>Describe the Issue</label>
                   <textarea
