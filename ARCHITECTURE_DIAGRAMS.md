@@ -199,7 +199,7 @@ USER INTERACTION
 App.jsx
 │
 ├─→ Navbar.jsx (with "My Appointments" link)
-│   
+│
 ├─→ Route: /admin
 │   └─→ AdminDashboard.jsx
 │       ├─→ Real-time polling (10s)

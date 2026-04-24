@@ -3,32 +3,36 @@
 ## 🎯 Start Here
 
 ### For Quick Overview:
+
 → **[QUICK_START.md](QUICK_START.md)** - 5 minute overview, how to use
 
 ### For Implementation Details:
+
 → **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - What files changed, key features
 
 ### For Complete Guide:
+
 → **[APPOINTMENT_STATUS_GUIDE.md](APPOINTMENT_STATUS_GUIDE.md)** - Full technical documentation
 
 ---
 
 ## 📖 Documentation Files
 
-| File | Purpose | Read Time |
-|------|---------|-----------|
-| [QUICK_START.md](QUICK_START.md) | Getting started guide | 5 min |
-| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) | Overview of changes | 10 min |
-| [APPOINTMENT_STATUS_GUIDE.md](APPOINTMENT_STATUS_GUIDE.md) | Complete technical guide | 20 min |
-| [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) | Visual system design | 15 min |
-| [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md) | Testing & verification | 30 min |
-| [README_IMPLEMENTATION.md](README_IMPLEMENTATION.md) | This file | 5 min |
+| File                                                       | Purpose                  | Read Time |
+| ---------------------------------------------------------- | ------------------------ | --------- |
+| [QUICK_START.md](QUICK_START.md)                           | Getting started guide    | 5 min     |
+| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)     | Overview of changes      | 10 min    |
+| [APPOINTMENT_STATUS_GUIDE.md](APPOINTMENT_STATUS_GUIDE.md) | Complete technical guide | 20 min    |
+| [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)       | Visual system design     | 15 min    |
+| [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md)     | Testing & verification   | 30 min    |
+| [README_IMPLEMENTATION.md](README_IMPLEMENTATION.md)       | This file                | 5 min     |
 
 ---
 
 ## 🔧 Files Modified in Project
 
 ### Backend
+
 ```
 server/src/models/Appointment.js
 ├─ ✅ Added "completed" status
@@ -44,6 +48,7 @@ server/src/routes/appointments.js
 ```
 
 ### Frontend
+
 ```
 client/src/pages/AdminDashboard.jsx
 ├─ ✅ Real-time polling (10 seconds)
@@ -75,29 +80,34 @@ client/src/components/Navbar.jsx
 ## 🎯 Key Features Implemented
 
 ### ✅ Automatic Status Updates
+
 - Appointment status automatically changes to "completed" when appointment time + 30 minutes passes
 - Happens on every API request (no background jobs needed)
 - Works in real-time
 
 ### ✅ Real-Time Polling
+
 - Admin Dashboard updates every 10 seconds
 - My Appointments page updates every 10 seconds
 - No page refresh needed
 - Status changes visible immediately
 
 ### ✅ Manual Status Management
+
 - Admins can mark appointments as "completed"
 - Admins/Users can cancel appointments
 - Confirmation dialogs prevent accidents
 - Color-coded visual feedback
 
 ### ✅ User Dashboard
+
 - New page at `/my-appointments` for users
 - View their own appointments
 - Cancel functionality
 - Real-time status updates
 
 ### ✅ Admin Management
+
 - Enhanced Admin Dashboard
 - View all appointments
 - Quick action buttons
@@ -108,23 +118,27 @@ client/src/components/Navbar.jsx
 ## 🚀 How to Run
 
 ### 1. Start Backend Server
+
 ```bash
 cd server
 npm run dev
 ```
 
 ### 2. Start Frontend Server
+
 ```bash
 cd client
 npm run dev
 ```
 
 ### 3. Open in Browser
+
 ```
 http://localhost:5173
 ```
 
 ### 4. Test the System
+
 ```bash
 node test-appointments.js
 ```
@@ -181,6 +195,7 @@ curl http://localhost:5000/api/health
 ## 📋 API Endpoints
 
 ### Get Appointments
+
 ```
 GET /api/appointments/my          - Get user's appointments
 GET /api/appointments             - Get all (admin only)
@@ -188,17 +203,20 @@ GET /api/appointments/status/check/:id - Check & auto-update
 ```
 
 ### Update Status
+
 ```
 PATCH /api/appointments/:id/status
 Body: { status: "completed" | "cancelled" | "confirmed" | "pending" }
 ```
 
 ### Available Slots
+
 ```
 GET /api/appointments/available/:doctor/:date
 ```
 
 ### Book Appointment
+
 ```
 POST /api/appointments
 Body: { name, phone, email, petName, petType, numberOfPets, doctor, date, timeSlot, issue }
@@ -208,15 +226,15 @@ Body: { name, phone, email, petName, petType, numberOfPets, doctor, date, timeSl
 
 ## ✨ Before & After
 
-| Feature | Before | After |
-|---------|--------|-------|
-| Status Updates | Manual refresh needed | Automatic every 10 sec |
-| Time-Based Changes | Not supported | Auto-updates when time passes |
-| User Dashboard | None | New My Appointments page |
-| Admin Control | Limited | Quick action buttons |
-| Real-Time Sync | No | Yes |
-| Visual Feedback | Basic | Color-coded & iconified |
-| Mobile Support | Basic | Fully responsive |
+| Feature            | Before                | After                         |
+| ------------------ | --------------------- | ----------------------------- |
+| Status Updates     | Manual refresh needed | Automatic every 10 sec        |
+| Time-Based Changes | Not supported         | Auto-updates when time passes |
+| User Dashboard     | None                  | New My Appointments page      |
+| Admin Control      | Limited               | Quick action buttons          |
+| Real-Time Sync     | No                    | Yes                           |
+| Visual Feedback    | Basic                 | Color-coded & iconified       |
+| Mobile Support     | Basic                 | Fully responsive              |
 
 ---
 
@@ -244,14 +262,17 @@ Body: { name, phone, email, petName, petType, numberOfPets, doctor, date, timeSl
 ## 🎓 Learning Resources
 
 ### Architecture
+
 - See `ARCHITECTURE_DIAGRAMS.md` for system design
 - See `APPOINTMENT_STATUS_GUIDE.md` for detailed flow
 
 ### Testing
+
 - See `VERIFICATION_CHECKLIST.md` for test cases
 - Run `test-appointments.js` to verify setup
 
 ### Implementation
+
 - See `IMPLEMENTATION_SUMMARY.md` for file changes
 - See comments in code for detailed explanations
 
@@ -269,13 +290,13 @@ Body: { name, phone, email, petName, petType, numberOfPets, doctor, date, timeSl
 
 ## 🐛 Common Issues & Solutions
 
-| Issue | Solution |
-|-------|----------|
-| Status not updating | Check polling interval, verify server running |
-| Buttons not showing | Verify appointment status is pending/confirmed |
-| Auth errors | Check JWT token validity, verify role |
-| Network errors | Check CORS headers, verify API URL |
-| UI lag | Check browser console, verify polling efficiency |
+| Issue               | Solution                                         |
+| ------------------- | ------------------------------------------------ |
+| Status not updating | Check polling interval, verify server running    |
+| Buttons not showing | Verify appointment status is pending/confirmed   |
+| Auth errors         | Check JWT token validity, verify role            |
+| Network errors      | Check CORS headers, verify API URL               |
+| UI lag              | Check browser console, verify polling efficiency |
 
 ---
 
@@ -287,6 +308,7 @@ Body: { name, phone, email, petName, petType, numberOfPets, doctor, date, timeSl
    - ARCHITECTURE_DIAGRAMS.md (visual)
 
 2. **Run Tests**
+
    ```bash
    node test-appointments.js
    ```
@@ -374,4 +396,3 @@ Your real-time appointment status management system is complete and ready to use
 Start with [QUICK_START.md](QUICK_START.md) → Then explore the other documentation as needed.
 
 **Happy coding!** 🚀
-

@@ -1,6 +1,7 @@
 # Real-Time Appointment Status Update System - Implementation Guide
 
 ## Overview
+
 This system implements automatic and manual appointment status updates with real-time synchronization between backend and frontend. The status automatically changes to "completed" when the appointment time passes, and admins/users can manually update statuses.
 
 ---
@@ -10,10 +11,12 @@ This system implements automatic and manual appointment status updates with real
 ### 1. **Appointment Model** (`server/src/models/Appointment.js`)
 
 **Changes Made:**
+
 - Added "completed" status to enum: `["pending", "confirmed", "completed", "cancelled"]`
 - Added `updatedAt: { type: Date, default: Date.now }` field to track when status changes
 
 **Status Lifecycle:**
+
 - `pending` → Initial state when appointment is booked
 - `confirmed` → Admin confirms the appointment
 - `completed` → Appointment time has passed (auto-updated) or manually marked
@@ -22,13 +25,16 @@ This system implements automatic and manual appointment status updates with real
 ### 2. **New API Endpoints** (`server/src/routes/appointments.js`)
 
 #### Helper Function: `isAppointmentPassed(date, timeSlot)`
+
 Checks if the appointment time has passed by comparing appointment end time with current time.
+
 - Assumes 30-minute appointment duration
 - Returns `true` if appointment is done
 
 #### New Endpoints:
 
 **1. Update Appointment Status**
+
 ```
 PATCH /api/appointments/:id/status
 Authorization: Bearer {token}
@@ -36,23 +42,28 @@ Body: { status: "completed" | "cancelled" | "confirmed" | "pending" }
 
 Response: { message: "Appointment status updated.", appointment: {...} }
 ```
+
 - Only appointment owner or admin can update
 - Updates the `updatedAt` timestamp
 
 **2. Check & Auto-Update Appointment Status**
+
 ```
 GET /api/appointments/status/check/:id
 Response: appointment object (with auto-updated status if time passed)
 ```
+
 - Used by frontend polling for real-time updates
 - Auto-updates status from "pending"/"confirmed" to "completed" if time passed
 
 **3. Get All Appointments with Auto-Update**
+
 ```
 GET /api/appointments/all/latest
 Authorization: Bearer {token} (admin only)
 Response: [appointments] (all with auto-updated statuses)
 ```
+
 - Admin endpoint to fetch all appointments with automatic status updates
 
 ---
@@ -62,10 +73,12 @@ Response: [appointments] (all with auto-updated statuses)
 ### 1. **Admin Dashboard** (`client/src/pages/AdminDashboard.jsx`)
 
 **Real-Time Polling:**
+
 - Fetches all appointments every 10 seconds
 - Automatically displays status changes without page refresh
 
 **Enhanced AppointmentTable Component:**
+
 - Shows appointment data with status badges
 - Color-coded status indicators:
   - Yellow: `pending`
@@ -74,14 +87,17 @@ Response: [appointments] (all with auto-updated statuses)
   - Red: `cancelled`
 
 **Action Buttons:**
+
 - ✓ **Mark Complete**: Manually mark appointment as completed
 - ✕ **Cancel**: Cancel the appointment (with confirmation)
 - Buttons disabled for already completed/cancelled appointments
 
 **Status Update Handler:**
+
 ```javascript
-handleUpdateAppointmentStatus(appointmentId, newStatus)
+handleUpdateAppointmentStatus(appointmentId, newStatus);
 ```
+
 - Sends PATCH request to update status
 - Refreshes appointment list after update
 - Shows success/error message
@@ -89,6 +105,7 @@ handleUpdateAppointmentStatus(appointmentId, newStatus)
 ### 2. **My Appointments Page** (`client/src/pages/MyAppointments.jsx`)
 
 **User-Facing Features:**
+
 - View all their own appointments
 - Real-time polling every 10 seconds
 - Card-based layout showing:
@@ -100,11 +117,13 @@ handleUpdateAppointmentStatus(appointmentId, newStatus)
   - Status with color-coded badge and icon
 
 **User Actions:**
+
 - Cancel button for pending/confirmed appointments
 - Disabled for completed/cancelled appointments
 - Confirmation dialog before cancellation
 
 **Status Icons:**
+
 - Clock icon for `pending`
 - Check icon (green) for `confirmed`
 - Check icon (blue) for `completed`
@@ -187,16 +206,19 @@ Shows success message
 ## Configuration
 
 ### Polling Interval
+
 - Current: 10 seconds (adjustable in useEffect)
 - Location: Both AdminDashboard and MyAppointments components
 - To change: Update the `10000` value in `setInterval()`
 
 ### Appointment Duration
+
 - Current: 30 minutes (for determining if time passed)
 - Location: `isAppointmentPassed()` function in appointments.js
 - To change: Update `appointmentDateTime.setMinutes()` call
 
 ### Status Update Permissions
+
 - Users: Can only update their own appointments
 - Admins: Can update any appointment
 - Verified by comparing `req.user.id` with `appointment.user`
@@ -223,6 +245,7 @@ Shows success message
 ## API Response Examples
 
 ### Get All Appointments (Admin)
+
 ```json
 [
   {
@@ -246,6 +269,7 @@ Shows success message
 ```
 
 ### Update Appointment Status
+
 ```
 Request:
 PATCH /api/appointments/507f1f77bcf86cd799439011/status
@@ -263,21 +287,25 @@ Response:
 ## Troubleshooting
 
 ### Status Not Updating
+
 - Check browser console for API errors
 - Verify server is running on correct port
 - Check if polling interval is working (should see network requests)
 
 ### Authorization Errors
+
 - Ensure JWT token is valid and not expired
 - Check token is being sent in Authorization header
 - Verify user role is "admin" for admin endpoints
 
 ### Status Stuck on "pending"
+
 - Backend check: Verify `isAppointmentPassed()` logic
 - Frontend check: Verify polling interval is running
 - Check browser network tab for failed requests
 
 ### Buttons Not Showing
+
 - Verify appointment status is "pending" or "confirmed"
 - Check browser console for JavaScript errors
 - Ensure appointment data is loading correctly

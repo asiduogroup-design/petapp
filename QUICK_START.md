@@ -5,18 +5,20 @@
 A complete **real-time appointment status management system** that automatically updates appointment statuses and allows admins/users to manually manage them.
 
 ### Key Features:
+
 ✅ **Automatic Status Updates** - Status changes to "completed" when appointment time passes  
 ✅ **Real-Time Polling** - Updates visible every 10 seconds without page refresh  
 ✅ **Manual Control** - Admins can mark appointments as completed or cancelled  
 ✅ **User Dashboard** - New page for users to view and manage their appointments  
 ✅ **Admin Dashboard** - Enhanced with status management and color-coded badges  
-✅ **Mobile Responsive** - Works seamlessly on all devices  
+✅ **Mobile Responsive** - Works seamlessly on all devices
 
 ---
 
 ## 📦 Files Modified/Created
 
 ### Backend (Server-Side)
+
 ```
 ✅ server/src/models/Appointment.js
    └─ Added "completed" status, updatedAt field
@@ -29,6 +31,7 @@ A complete **real-time appointment status management system** that automatically
 ```
 
 ### Frontend (Client-Side)
+
 ```
 ✅ client/src/pages/AdminDashboard.jsx
    └─ Added real-time polling (10 second intervals)
@@ -48,6 +51,7 @@ A complete **real-time appointment status management system** that automatically
 ```
 
 ### Documentation
+
 ```
 ✅ APPOINTMENT_STATUS_GUIDE.md
 ✅ IMPLEMENTATION_SUMMARY.md
@@ -63,11 +67,12 @@ A complete **real-time appointment status management system** that automatically
 ### For Admins:
 
 1. **Start the application**
+
    ```bash
    # Terminal 1 - Start backend
    cd server
    npm run dev
-   
+
    # Terminal 2 - Start frontend
    cd client
    npm run dev
@@ -122,13 +127,17 @@ COMPLETED      CANCELLED
 ## ⚙️ Configuration
 
 ### Change Polling Interval:
+
 Edit in `AdminDashboard.jsx` and `MyAppointments.jsx`:
+
 ```javascript
 const interval = setInterval(fetchAppointments, 10000); // Change 10000ms
 ```
 
 ### Change Appointment Duration:
+
 Edit in `server/src/routes/appointments.js`:
+
 ```javascript
 appointmentDateTime.setMinutes(appointmentDateTime.getMinutes() + 30); // Change 30 min
 ```
@@ -138,11 +147,13 @@ appointmentDateTime.setMinutes(appointmentDateTime.getMinutes() + 30); // Change
 ## 🧪 Testing
 
 Run the test script:
+
 ```bash
 node test-appointments.js
 ```
 
 This will:
+
 - ✓ Check server health
 - ✓ List all API endpoints
 - ✓ Show valid status values
@@ -191,7 +202,7 @@ Time: 2:45 PM (appointment time passed)
 ✅ **Authorization Checked** - Users can only update own appointments  
 ✅ **Admins Only** - Certain endpoints restrict to admin role  
 ✅ **Confirmation Dialogs** - Prevent accidental actions  
-✅ **Error Handling** - Graceful error messages  
+✅ **Error Handling** - Graceful error messages
 
 ---
 
@@ -200,23 +211,26 @@ Time: 2:45 PM (appointment time passed)
 ✅ Desktop (1920px and above)  
 ✅ Tablet (768px - 1024px)  
 ✅ Mobile (375px - 767px)  
-✅ All modern browsers  
+✅ All modern browsers
 
 ---
 
 ## 🚨 Troubleshooting
 
 ### Statuses Not Updating?
+
 - Check if backend server is running
 - Check browser console for errors
 - Verify polling is active (look for network requests)
 
 ### Buttons Not Showing?
+
 - Verify appointment status is pending/confirmed
 - Check if logged in as admin
 - Check browser console for JavaScript errors
 
 ### Authorization Error?
+
 - Verify JWT token is valid
 - Check token hasn't expired
 - Verify user role is correct
@@ -226,12 +240,14 @@ Time: 2:45 PM (appointment time passed)
 ## ✨ Key Improvements
 
 ### Before:
+
 - Status only showed "pending" or "confirmed"
 - Admin had to manually refresh to see changes
 - No real-time updates
 - Users couldn't manage appointments
 
 ### After:
+
 - Status auto-updates to "completed" when time passes
 - Real-time updates every 10 seconds (no refresh needed)
 - Admins can quickly manage appointments with buttons
@@ -243,13 +259,15 @@ Time: 2:45 PM (appointment time passed)
 ## 📞 Support
 
 **Issue?** Check these in order:
+
 1. Browser console for errors
 2. Server console for API errors
 3. Documentation files
 4. Test script output
 5. Verification checklist
 
-**Still stuck?** 
+**Still stuck?**
+
 - Verify all files were modified correctly
 - Check database for appointment records
 - Verify JWT token is valid
@@ -260,6 +278,7 @@ Time: 2:45 PM (appointment time passed)
 ## 🎉 You're All Set!
 
 Your pet appointment system now has:
+
 - ✅ Automatic status updates
 - ✅ Real-time synchronization
 - ✅ User-friendly interface

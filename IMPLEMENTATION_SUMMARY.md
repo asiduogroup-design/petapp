@@ -58,21 +58,25 @@ The system now automatically updates appointment statuses in real-time and allow
 ## 🎯 Key Features Implemented
 
 ### 1. **Automatic Status Updates**
+
 - Backend automatically changes status from "pending"/"confirmed" to "completed" when appointment time passes (+ 30 min buffer)
 - Happens on every API request without user intervention
 
 ### 2. **Real-Time Polling**
+
 - Admin Dashboard polls every 10 seconds
 - My Appointments page polls every 10 seconds
 - Users and admins see status changes without page refresh
 
 ### 3. **Manual Status Management**
+
 - Admins can click ✓ button to mark appointment as completed
 - Admins/Users can click ✕ button to cancel appointment
 - Confirmation dialogs prevent accidental actions
 - Status update immediately reflected in UI
 
 ### 4. **User-Friendly Interface**
+
 - Color-coded status badges:
   - Yellow: pending
   - Green: confirmed
@@ -82,6 +86,7 @@ The system now automatically updates appointment statuses in real-time and allow
 - Success/error messages after actions
 
 ### 5. **Multi-Role Support**
+
 - **Admins**: View all appointments, update any status
 - **Users**: View own appointments, cancel own appointments
 - **Guests**: Cannot access appointment pages (redirected to login)
@@ -169,6 +174,7 @@ The system now automatically updates appointment statuses in real-time and allow
 ## 📊 API Reference
 
 ### Get User's Appointments
+
 ```
 GET /api/appointments/my
 Authorization: Bearer {token}
@@ -177,6 +183,7 @@ Response: Array of appointments
 ```
 
 ### Get All Appointments (Admin)
+
 ```
 GET /api/appointments
 Authorization: Bearer {token}
@@ -185,6 +192,7 @@ Response: Array of all appointments
 ```
 
 ### Update Appointment Status
+
 ```
 PATCH /api/appointments/:id/status
 Authorization: Bearer {token}
@@ -196,6 +204,7 @@ Response: { message: "...", appointment: {...} }
 ```
 
 ### Check & Auto-Update Status
+
 ```
 GET /api/appointments/status/check/:id
 
@@ -207,14 +216,18 @@ Response: appointment (with auto-updated status if applicable)
 ## ⚙️ Configuration
 
 ### Change Polling Interval:
+
 Edit the interval in `AdminDashboard.jsx` and `MyAppointments.jsx`:
+
 ```javascript
 // Change 10000 (10 seconds) to desired interval in milliseconds
 const interval = setInterval(fetchAppointments, 10000);
 ```
 
 ### Change Appointment Duration:
+
 Edit the duration check in `server/src/routes/appointments.js`:
+
 ```javascript
 // Change 30 to desired duration in minutes
 appointmentDateTime.setMinutes(appointmentDateTime.getMinutes() + 30);
@@ -225,17 +238,20 @@ appointmentDateTime.setMinutes(appointmentDateTime.getMinutes() + 30);
 ## 🐛 Troubleshooting
 
 ### Statuses Not Updating
+
 - Check if backend server is running
 - Check browser console for errors
 - Verify polling intervals are working (see Network tab)
 - Check appointment date/time format (should be YYYY-MM-DD HH:MM)
 
 ### Buttons Not Showing
+
 - Verify appointment status is "pending" or "confirmed"
 - Check if user is logged in as admin
 - Check browser console for errors
 
 ### Authorization Errors
+
 - Ensure JWT token is valid
 - Check token expiration
 - Verify user role (admin or owner)
@@ -255,18 +271,21 @@ appointmentDateTime.setMinutes(appointmentDateTime.getMinutes() + 30);
 ## 🚀 Quick Start
 
 1. **Start Backend**
+
    ```bash
    cd server
    npm run dev
    ```
 
 2. **Start Frontend**
+
    ```bash
    cd client
    npm run dev
    ```
 
 3. **Test the System**
+
    ```bash
    # Run the test script
    node test-appointments.js
@@ -282,29 +301,29 @@ appointmentDateTime.setMinutes(appointmentDateTime.getMinutes() + 30);
 
 ## ✨ Features Overview
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| Auto Status Update | ✅ | Automatically updates to "completed" when time passes |
-| Real-Time Polling | ✅ | Updates every 10 seconds without page refresh |
-| Manual Status Change | ✅ | Admin can manually update status |
-| User Cancellation | ✅ | Users can cancel their own appointments |
-| Admin Dashboard | ✅ | View and manage all appointments |
-| My Appointments | ✅ | Users see their own appointments |
-| Status Colors | ✅ | Color-coded status indicators |
-| Action Buttons | ✅ | Complete and cancel buttons |
-| Confirmation Dialogs | ✅ | Prevent accidental changes |
-| Error Handling | ✅ | Display errors gracefully |
-| Mobile Responsive | ✅ | Works on all screen sizes |
-| Protected Routes | ✅ | Authentication required |
+| Feature              | Status | Description                                           |
+| -------------------- | ------ | ----------------------------------------------------- |
+| Auto Status Update   | ✅     | Automatically updates to "completed" when time passes |
+| Real-Time Polling    | ✅     | Updates every 10 seconds without page refresh         |
+| Manual Status Change | ✅     | Admin can manually update status                      |
+| User Cancellation    | ✅     | Users can cancel their own appointments               |
+| Admin Dashboard      | ✅     | View and manage all appointments                      |
+| My Appointments      | ✅     | Users see their own appointments                      |
+| Status Colors        | ✅     | Color-coded status indicators                         |
+| Action Buttons       | ✅     | Complete and cancel buttons                           |
+| Confirmation Dialogs | ✅     | Prevent accidental changes                            |
+| Error Handling       | ✅     | Display errors gracefully                             |
+| Mobile Responsive    | ✅     | Works on all screen sizes                             |
+| Protected Routes     | ✅     | Authentication required                               |
 
 ---
 
 ## 📞 Support
 
 For issues or questions:
+
 1. Check the `APPOINTMENT_STATUS_GUIDE.md` file
 2. Run `test-appointments.js` to verify setup
 3. Check browser console for client-side errors
 4. Check server logs for API errors
 5. Verify database connection and data
-
