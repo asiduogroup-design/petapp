@@ -13,6 +13,17 @@ const SIDEBAR = [
 
 const WISHLIST_KEY = "petapp_wishlist";
 
+function formatTimeSlot(timeSlot) {
+  if (!timeSlot || typeof timeSlot !== "string") return "-";
+
+  const [h, m] = timeSlot.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return timeSlot;
+
+  const period = h >= 12 ? "PM" : "AM";
+  const displayHour = h % 12 || 12;
+  return `${displayHour}:${String(m).padStart(2, "0")} ${period}`;
+}
+
 export default function Profile() {
   const navigate = useNavigate();
   const [section, setSection] = useState("profile");
@@ -207,7 +218,7 @@ export default function Profile() {
                       <td style={tdStyle}>{appointment.doctor || "-"}</td>
                       <td style={tdStyle}>{appointment.petName || "-"} ({appointment.petType || "-"})</td>
                       <td style={tdStyle}>{appointment.date || "-"}</td>
-                      <td style={tdStyle}>{appointment.time || "-"}</td>
+                      <td style={tdStyle}>{formatTimeSlot(appointment.timeSlot || appointment.time)}</td>
                       <td style={tdStyle}>{appointment.issue || "-"}</td>
                       <td style={tdStyle}>{appointment.status || "pending"}</td>
                     </tr>

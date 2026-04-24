@@ -80,6 +80,21 @@ export default function AdminDashboard() {
       }
     }
     fetchData();
+
+    // Set up real-time polling for appointments (check every 10 seconds)
+    const appointmentPollInterval = setInterval(async () => {
+      try {
+        const resA = await fetch(`${API_BASE}/api/appointments`, { headers: { Authorization: `Bearer ${token}` } });
+        if (resA.ok) {
+          const appointmentsData = await resA.json();
+          setAppointments(appointmentsData);
+        }
+      } catch (err) {
+        console.error("Error polling appointments:", err);
+      }
+    }, 10000);
+
+    return () => clearInterval(appointmentPollInterval);
     // eslint-disable-next-line
   }, []);
 
@@ -131,6 +146,34 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       setActionMsg("Order deletion failed");
+    }
+  }
+
+  // Update appointment status (admin only)
+  async function handleUpdateAppointmentStatus(appointmentId, newStatus) {
+    setActionMsg("");
+    try {
+      const res = await fetch(`${API_BASE}/api/appointments/${appointmentId}/status`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      
+      setActionMsg(`Appointment status updated to ${newStatus}`);
+
+      // Refresh appointments
+      const resA = await fetch(`${API_BASE}/api/appointments`, { headers: { Authorization: `Bearer ${token}` } });
+      if (resA.ok) {
+        const appointmentsData = await resA.json();
+        setAppointments(appointmentsData);
+      }
+    } catch (err) {
+      setActionMsg(`Status update failed: ${err.message}`);
     }
   }
 
@@ -277,7 +320,7 @@ export default function AdminDashboard() {
           <OrderTable orders={paginate(orders)[0]} loading={loading} error={error} onDelete={handleDeleteOrder} />
         )}
         {section === "appointments" && (
-          <AppointmentTable appointments={paginate(appointments)[0]} loading={loading} error={error} />
+          <AppointmentTable appointments={paginate(appointments)[0]} loading={loading} error={error} onUpdateStatus={handleUpdateAppointmentStatus} actionMsg={actionMsg} />
         )}
         {/* Pagination */}
         <Pagination page={page} setPage={setPage} total={paginate(
@@ -429,14 +472,29 @@ function OrderTable({ orders, loading, error, onDelete }) {
   );
 }
 
-function AppointmentTable({ appointments, loading, error }) {
+function AppointmentTable({ appointments, loading, error, onUpdateStatus, actionMsg }) {
   if (loading) return <div>Loading appointments...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!appointments.length) return <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>No appointments found.</div>;
+  
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "confirmed":
+        return { background: "#d4edda", color: "#155724" };
+      case "completed":
+        return { background: "#d1ecf1", color: "#0c5460" };
+      case "cancelled":
+        return { background: "#f8d7da", color: "#721c24" };
+      default: // pending
+        return { background: "#fff3cd", color: "#856404" };
+    }
+  };
+
   return (
     <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24, overflowX: "auto" }} className="responsive-table">
       <h3 style={{ marginBottom: 16 }}>Doctor Appointments</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
+      {actionMsg && <div style={{ color: actionMsg.includes("failed") ? "red" : "green", marginBottom: 10, padding: "10px", background: actionMsg.includes("failed") ? "#ffe6e6" : "#e6ffe6", borderRadius: 6 }}>{actionMsg}</div>}
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Patient Name</th>
@@ -449,31 +507,64 @@ function AppointmentTable({ appointments, loading, error }) {
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Time</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Issue</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Status</th>
+            <th style={{ padding: "10px 12px", textAlign: "left" }}>Actions</th>
             <th style={{ padding: "10px 12px", textAlign: "left" }}>Booked On</th>
           </tr>
         </thead>
         <tbody>
-          {appointments.map((a) => (
-            <tr key={a._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-              <td style={{ padding: "10px 12px" }}>{a.name}</td>
-              <td style={{ padding: "10px 12px" }}>{a.phone}</td>
-              <td style={{ padding: "10px 12px" }}>{a.email}</td>
-              <td style={{ padding: "10px 12px" }}>{a.petName} ({a.petType})</td>
-              <td style={{ padding: "10px 12px" }}>{a.numberOfPets}</td>
-              <td style={{ padding: "10px 12px" }}>{a.doctor}</td>
-              <td style={{ padding: "10px 12px" }}>{a.date}</td>
-              <td style={{ padding: "10px 12px" }}>{a.timeSlot}</td>
-              <td style={{ padding: "10px 12px", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.issue || "-"}</td>
-              <td style={{ padding: "10px 12px" }}>
-                <span style={{
-                  padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600,
-                  background: a.status === "confirmed" ? "#d4edda" : a.status === "cancelled" ? "#f8d7da" : "#fff3cd",
-                  color: a.status === "confirmed" ? "#155724" : a.status === "cancelled" ? "#721c24" : "#856404",
-                }}>{a.status}</span>
-              </td>
-              <td style={{ padding: "10px 12px" }}>{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "-"}</td>
-            </tr>
-          ))}
+          {appointments.map((a) => {
+            const statusColor = getStatusColor(a.status);
+            const isCompleted = a.status === "completed";
+            const isCancelled = a.status === "cancelled";
+            
+            return (
+              <tr key={a._id} style={{ borderBottom: "1px solid #f0f0f0", background: isCancelled ? "#ffeaea" : isCompleted ? "#e6f7ff" : "#fff" }}>
+                <td style={{ padding: "10px 12px" }}>{a.name}</td>
+                <td style={{ padding: "10px 12px" }}>{a.phone}</td>
+                <td style={{ padding: "10px 12px" }}>{a.email}</td>
+                <td style={{ padding: "10px 12px" }}>{a.petName} ({a.petType})</td>
+                <td style={{ padding: "10px 12px" }}>{a.numberOfPets}</td>
+                <td style={{ padding: "10px 12px" }}>{a.doctor}</td>
+                <td style={{ padding: "10px 12px" }}>{a.date}</td>
+                <td style={{ padding: "10px 12px" }}>{a.timeSlot}</td>
+                <td style={{ padding: "10px 12px", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.issue || "-"}</td>
+                <td style={{ padding: "10px 12px" }}>
+                  <span style={{
+                    padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                    ...statusColor
+                  }}>{a.status}</span>
+                </td>
+                <td style={{ padding: "10px 12px", display: "flex", gap: 4 }}>
+                  {!isCancelled && !isCompleted && (
+                    <>
+                      <button 
+                        title="Mark as Completed" 
+                        style={{ ...iconBtnStyle, color: "#28a745" }}
+                        onClick={() => onUpdateStatus(a._id, "completed")}
+                      >
+                        ✓
+                      </button>
+                      <button 
+                        title="Cancel Appointment" 
+                        style={{ ...iconBtnStyle, color: "#dc3545" }}
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to cancel this appointment?")) {
+                            onUpdateStatus(a._id, "cancelled");
+                          }
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </>
+                  )}
+                  {(isCompleted || isCancelled) && (
+                    <span style={{ fontSize: 12, color: "#999" }}>No actions</span>
+                  )}
+                </td>
+                <td style={{ padding: "10px 12px" }}>{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "-"}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

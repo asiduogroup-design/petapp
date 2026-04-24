@@ -12,8 +12,9 @@ const appointmentSchema = new mongoose.Schema({
   date: { type: String, required: true }, // Format: YYYY-MM-DD
   timeSlot: { type: String, required: true }, // Format: HH:MM (24-hour format, e.g., "10:00")
   issue: { type: String, default: "" },
-  status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending" },
+  status: { type: String, enum: ["pending", "confirmed", "completed", "cancelled"], default: "pending" },
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 const Appointment = mongoose.models.Appointment || mongoose.model("Appointment", appointmentSchema);

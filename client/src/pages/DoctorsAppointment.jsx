@@ -18,7 +18,7 @@ function generateTimeSlots() {
     for (let minute = 0; minute < 60; minute += 15) {
       const displayHour = hour > 12 ? hour - 12 : hour;
       const period = hour >= 12 ? "PM" : "AM";
-      const timeStr = `${String(displayHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      const timeStr = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
       const displayTime = `${displayHour}:${String(minute).padStart(2, "0")} ${period}`;
       slots.push({ time: timeStr, display: displayTime });
     }

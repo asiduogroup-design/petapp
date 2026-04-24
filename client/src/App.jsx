@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Products from "./pages/Products";
 import Services from "./pages/Services";
 import DoctorsAppointment from "./pages/DoctorsAppointment";
+import MyAppointments from "./pages/MyAppointments";
 import LoginRegister from "./pages/LoginRegister";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
@@ -36,6 +37,16 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
             <DoctorsAppointment
               isLoggedIn={isLoggedIn}
               user={user}
+              authToken={authToken}
+            />
+          }
+        />
+
+        <Route
+          path="/my-appointments"
+          element={
+            <MyAppointments
+              isLoggedIn={isLoggedIn}
               authToken={authToken}
             />
           }

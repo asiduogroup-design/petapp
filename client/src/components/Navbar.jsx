@@ -51,15 +51,26 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
               </li>
             )}
             {user && user.role !== "admin" && (
-              <li>
-                <NavLink
-                  to="/user"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                  onClick={() => setOpen(false)}
-                >
-                  My Account
-                </NavLink>
-              </li>
+              <>
+                <li>
+                  <NavLink
+                    to="/user"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                    onClick={() => setOpen(false)}
+                  >
+                    My Account
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/my-appointments"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                    onClick={() => setOpen(false)}
+                  >
+                    My Appointments
+                  </NavLink>
+                </li>
+              </>
             )}
             {/* Login/Logout for mobile */}
             <li className="nav-mobile-action">
