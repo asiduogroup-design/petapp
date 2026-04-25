@@ -12,6 +12,8 @@ import MyAppointments from "./pages/MyAppointments";
 import LoginRegister from "./pages/LoginRegister";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
+import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 
 function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
@@ -53,6 +55,28 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
         />
 
         <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
+
+        <Route
+          path="/payment"
+          element={
+            user ? (
+              <Payment authToken={authToken} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/payment/success"
+          element={
+            user ? (
+              <PaymentSuccess />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
         <Route
           path="/user"

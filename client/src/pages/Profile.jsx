@@ -151,6 +151,11 @@ export default function Profile() {
     [orders.length, appointments.length, wishlist.length, cart]
   );
 
+  const cartTotal = useMemo(
+    () => cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0),
+    [cart]
+  );
+
   const removeWishlistItem = (index) => {
     const next = wishlist.filter((_, i) => i !== index);
     setWishlist(next);
@@ -270,10 +275,13 @@ export default function Profile() {
 
                 <p style={{ marginTop: 16, fontWeight: 800, fontSize: 18, textAlign: "right", color: "#0f172a" }}>
                   Total: ₹
-                  {cart
-                    .reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0)
-                    .toLocaleString("en-IN")}
+                  {cartTotal.toLocaleString("en-IN")}
                 </p>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+                  <button className="btn btn-primary" onClick={() => navigate("/payment")}>
+                    Proceed to Payment
+                  </button>
+                </div>
               </>
             )}
           </div>
