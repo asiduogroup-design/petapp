@@ -114,10 +114,9 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
     try {
       // Use full doctor name as stored in database
       const doctorName = form.doctor; // Keep full name like "Dr. doctor1 - General Veterinarian"
-      const response = await fetch(
-        `/api/appointments/available/${encodeURIComponent(doctorName)}/${form.date}`
+      const data = await apiRequest(
+        `/appointments/available/${encodeURIComponent(doctorName)}/${form.date}`
       );
-      const data = await response.json();
       setAvailableSlots((data.availableSlots || []).map(normalizeTimeSlot));
       setBookedSlots((data.bookedSlots || []).map(normalizeTimeSlot));
       // Reset timeSlot selection when slots change
