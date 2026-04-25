@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaHeart, FaBoxOpen, FaUserCircle, FaStethoscope } from "react-icons/fa";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { FaHeart, FaBoxOpen, FaUserCircle, FaStethoscope, FaShoppingCart } from "react-icons/fa";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
 const SIDEBAR = [
   { key: "profile", label: "My Profile", icon: <FaUserCircle /> },
+  { key: "cart", label: "My Cart", icon: <FaShoppingCart /> },
   { key: "orders", label: "Order History", icon: <FaBoxOpen /> },
   { key: "appointments", label: "Doctor Appointments", icon: <FaStethoscope /> },
   { key: "wishlist", label: "Wishlist", icon: <FaHeart /> },
 ];
 
 const WISHLIST_KEY = "petapp_wishlist";
+const CART_KEY = "petapp_cart";
 
 function formatTimeSlot(timeSlot) {
   if (!timeSlot || typeof timeSlot !== "string") return "-";
@@ -26,11 +28,13 @@ function formatTimeSlot(timeSlot) {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [section, setSection] = useState("profile");
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -84,12 +88,57 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
+    const allowedSections = new Set(["profile", "cart", "orders", "appointments", "wishlist"]);
+    const requestedSection = new URLSearchParams(location.search).get("section");
+
+    if (requestedSection && allowedSections.has(requestedSection)) {
+      setSection(requestedSection);
+      return;
+    }
+
+    setSection("profile");
+  }, [location.search]);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(WISHLIST_KEY);
       setWishlist(stored ? JSON.parse(stored) : []);
     } catch (_err) {
       setWishlist([]);
     }
+
+    try {
+      const storedCart = localStorage.getItem(CART_KEY);
+      setCart(storedCart ? JSON.parse(storedCart) : []);
+    } catch (_err) {
+      setCart([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    const syncCollections = () => {
+      try {
+        const stored = localStorage.getItem(WISHLIST_KEY);
+        setWishlist(stored ? JSON.parse(stored) : []);
+      } catch (_err) {
+        setWishlist([]);
+      }
+
+      try {
+        const storedCart = localStorage.getItem(CART_KEY);
+        setCart(storedCart ? JSON.parse(storedCart) : []);
+      } catch (_err) {
+        setCart([]);
+      }
+    };
+
+    window.addEventListener("storage", syncCollections);
+    window.addEventListener("petapp:storage-updated", syncCollections);
+
+    return () => {
+      window.removeEventListener("storage", syncCollections);
+      window.removeEventListener("petapp:storage-updated", syncCollections);
+    };
   }, []);
 
   const quickStats = useMemo(
@@ -97,14 +146,34 @@ export default function Profile() {
       orders: orders.length,
       appointments: appointments.length,
       wishlist: wishlist.length,
+      cart: cart.reduce((sum, item) => sum + Number(item?.quantity || 0), 0),
     }),
-    [orders.length, appointments.length, wishlist.length]
+    [orders.length, appointments.length, wishlist.length, cart]
   );
 
   const removeWishlistItem = (index) => {
     const next = wishlist.filter((_, i) => i !== index);
     setWishlist(next);
     localStorage.setItem(WISHLIST_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event("petapp:storage-updated"));
+  };
+
+  const updateCartQuantity = (id, nextQuantity) => {
+    const quantity = Math.max(1, Number(nextQuantity || 1));
+    const next = cart.map((item) =>
+      String(item.id) === String(id) ? { ...item, quantity } : item
+    );
+
+    setCart(next);
+    localStorage.setItem(CART_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event("petapp:storage-updated"));
+  };
+
+  const removeCartItem = (id) => {
+    const next = cart.filter((item) => String(item.id) !== String(id));
+    setCart(next);
+    localStorage.setItem(CART_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event("petapp:storage-updated"));
   };
 
   if (loading) {
@@ -147,10 +216,68 @@ export default function Profile() {
 
       <main className="admin-dashboard-content">
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
+          <MiniStat title="Cart" value={quickStats.cart} />
           <MiniStat title="Orders" value={quickStats.orders} />
           <MiniStat title="Appointments" value={quickStats.appointments} />
           <MiniStat title="Wishlist" value={quickStats.wishlist} />
         </div>
+
+        {section === "cart" && (
+          <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>
+            <h3 style={{ marginBottom: 16 }}>My Cart</h3>
+            {!cart.length ? (
+              <EmptyState title="Your cart is empty" ctaLabel="Add Products" ctaTo="/products" />
+            ) : (
+              <>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {cart.map((item) => (
+                    <div
+                      key={String(item.id)}
+                      style={{
+                        border: "1px solid #e5e7eb",
+                        borderRadius: 10,
+                        padding: 14,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <div>
+                        <p style={{ fontWeight: 700, marginBottom: 4 }}>{item.name || "Cart Item"}</p>
+                        <p style={{ color: "#64748b", fontSize: 14 }}>{item.category || item.cat || "Pet Product"}</p>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <input
+                          type="number"
+                          min="1"
+                          value={Number(item.quantity || 1)}
+                          onChange={(e) => updateCartQuantity(item.id, e.target.value)}
+                          style={{ width: 72, padding: "6px 8px", border: "1px solid #cbd5e1", borderRadius: 8 }}
+                        />
+                        <p style={{ fontWeight: 700, color: "#0f766e", minWidth: 100 }}>
+                          ₹{(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString("en-IN")}
+                        </p>
+                        <button className="btn btn-outline btn-sm" onClick={() => removeCartItem(item.id)}>
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <p style={{ marginTop: 16, fontWeight: 800, fontSize: 18, textAlign: "right", color: "#0f172a" }}>
+                  Total: ₹
+                  {cart
+                    .reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0)
+                    .toLocaleString("en-IN")}
+                </p>
+              </>
+            )}
+          </div>
+        )}
 
         {section === "profile" && (
           <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24 }}>

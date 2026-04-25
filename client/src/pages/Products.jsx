@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from "../lib/api";
 
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const WISHLIST_KEY = "petapp_wishlist";
+const CART_KEY = "petapp_cart";
 
 export default function Products({ isLoggedIn, authToken }) {
   const navigate = useNavigate();
@@ -100,26 +100,40 @@ export default function Products({ isLoggedIn, authToken }) {
       return;
     }
 
-    setOrderingId(product.id);
+    const productId = String(product.id ?? product._id ?? product.name);
+    setOrderingId(productId);
 
     try {
-      await apiRequest("/orders", {
-        method: "POST",
-        token: authToken,
-        body: {
-          items: [
-            {
-              productId: String(product._id || product.id || product.name),
-              name: product.name,
-              quantity: 1,
-              price: Number(product.price || 0),
-            },
-          ],
-          total: Number(product.price || 0),
-        },
-      });
+      const raw = localStorage.getItem(CART_KEY);
+      const current = raw ? JSON.parse(raw) : [];
+      const existingIndex = current.findIndex((item) => String(item.id) === productId);
 
-      window.alert(`${product.name} added to your orders.`);
+      let next = [];
+
+      if (existingIndex >= 0) {
+        next = current.map((item, index) =>
+          index === existingIndex
+            ? { ...item, quantity: Number(item.quantity || 1) + 1 }
+            : item
+        );
+      } else {
+        next = [
+          ...current,
+          {
+            id: productId,
+            name: product.name,
+            category: product.category || product.cat,
+            cat: product.cat,
+            price: Number(product.price || 0),
+            emoji: product.emoji,
+            quantity: 1,
+          },
+        ];
+      }
+
+      localStorage.setItem(CART_KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event("petapp:storage-updated"));
+      window.alert(`${product.name} added to your cart.`);
     } catch (error) {
       window.alert(error.message);
     } finally {
@@ -300,10 +314,10 @@ export default function Products({ isLoggedIn, authToken }) {
                       <button
                         className="btn btn-primary btn-sm"
                         style={{ flex: 1 }}
-                        disabled={orderingId === p.id}
+                        disabled={orderingId === String(p.id ?? p._id ?? p.name)}
                         onClick={() => saveOrder(p)}
                       >
-                        {orderingId === p.id ? "Adding..." : "Add to Cart"}
+                        {orderingId === String(p.id ?? p._id ?? p.name) ? "Adding..." : "Add to Cart"}
                       </button>
                       <button
                         className="btn btn-outline btn-sm"

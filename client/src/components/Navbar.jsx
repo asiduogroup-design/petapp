@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { FaHeart, FaShoppingCart } from "react-icons/fa";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -10,6 +11,40 @@ const navLinks = [
 
 export default function Navbar({ isLoggedIn, user, onLogout }) {
   const [open, setOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const syncCounts = () => {
+      try {
+        const wishlistRaw = localStorage.getItem("petapp_wishlist");
+        const wishlist = wishlistRaw ? JSON.parse(wishlistRaw) : [];
+        setWishlistCount(Array.isArray(wishlist) ? wishlist.length : 0);
+      } catch (_err) {
+        setWishlistCount(0);
+      }
+
+      try {
+        const cartRaw = localStorage.getItem("petapp_cart");
+        const cart = cartRaw ? JSON.parse(cartRaw) : [];
+        const count = Array.isArray(cart)
+          ? cart.reduce((sum, item) => sum + Number(item?.quantity || 0), 0)
+          : 0;
+        setCartCount(count);
+      } catch (_err) {
+        setCartCount(0);
+      }
+    };
+
+    syncCounts();
+    window.addEventListener("storage", syncCounts);
+    window.addEventListener("petapp:storage-updated", syncCounts);
+
+    return () => {
+      window.removeEventListener("storage", syncCounts);
+      window.removeEventListener("petapp:storage-updated", syncCounts);
+    };
+  }, []);
 
   return (
     <nav className="navbar">
@@ -95,6 +130,18 @@ export default function Navbar({ isLoggedIn, user, onLogout }) {
           </ul>
 
           <div className="nav-actions">
+            {isLoggedIn && user && user.role !== "admin" && (
+              <>
+                <Link to="/user?section=wishlist" className="nav-icon-link" title="Wishlist" onClick={() => setOpen(false)}>
+                  <FaHeart />
+                  {wishlistCount > 0 && <span className="nav-icon-badge">{wishlistCount}</span>}
+                </Link>
+                <Link to="/user?section=cart" className="nav-icon-link" title="Cart" onClick={() => setOpen(false)}>
+                  <FaShoppingCart />
+                  {cartCount > 0 && <span className="nav-icon-badge">{cartCount}</span>}
+                </Link>
+              </>
+            )}
             {/* Desktop only */}
             {isLoggedIn ? (
               <button
