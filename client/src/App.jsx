@@ -16,7 +16,7 @@ import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
 
-function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
+function Layout({ isLoggedIn, user, authToken, loadingUser, onLogin, onLogout }) {
   const { pathname } = useLocation();
 
   return (
@@ -81,7 +81,11 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
         <Route
           path="/user"
           element={
-            user ? (
+            loadingUser && authToken ? (
+              <div className="container" style={{ textAlign:"center", marginTop:80 }}>
+                Loading your account...
+              </div>
+            ) : user ? (
               <Profile />
             ) : (
               <Navigate to="/login" replace />
@@ -92,7 +96,11 @@ function Layout({ isLoggedIn, user, authToken, onLogin, onLogout }) {
         <Route
           path="/admin"
           element={
-            user && user.role === "admin" ? (
+            loadingUser && authToken ? (
+              <div className="container" style={{ textAlign:"center", marginTop:80 }}>
+                Loading admin dashboard...
+              </div>
+            ) : user && user.role === "admin" ? (
               <AdminDashboard />
             ) : user ? (
               <Navigate to="/user" replace />
@@ -283,18 +291,6 @@ function App() {
   }
 
 
-
-  // Wait until user session restored
-  if (loadingUser) {
-    return (
-      <div style={{ textAlign:"center", marginTop:80 }}>
-        Loading...
-      </div>
-    );
-  }
-
-
-
   return (
 
     <BrowserRouter>
@@ -305,6 +301,7 @@ function App() {
         isLoggedIn={isLoggedIn}
         user={user}
         authToken={authToken}
+        loadingUser={loadingUser}
         onLogin={handleLogin}
         onLogout={handleLogout}
       />
