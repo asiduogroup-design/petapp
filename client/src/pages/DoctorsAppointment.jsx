@@ -26,6 +26,35 @@ function generateTimeSlots() {
   return slots;
 }
 
+function normalizeTimeSlot(value) {
+  if (!value || typeof value !== "string") {
+    return "";
+  }
+
+  const trimmedValue = value.trim();
+
+  if (/^\d{2}:\d{2}$/.test(trimmedValue)) {
+    return trimmedValue;
+  }
+
+  const match = trimmedValue.match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+  if (!match) {
+    return trimmedValue;
+  }
+
+  let [, hourText, minuteText, periodText] = match;
+  let hour = Number(hourText);
+  const period = periodText.toUpperCase();
+
+  if (period === "AM") {
+    hour = hour === 12 ? 0 : hour;
+  } else {
+    hour = hour === 12 ? 12 : hour + 12;
+  }
+
+  return `${String(hour).padStart(2, "0")}:${minuteText}`;
+}
+
 const getInitialForm = (user) => ({
   name: user?.name || "",
   phone: user?.phone || "",
@@ -89,9 +118,8 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
         `/api/appointments/available/${encodeURIComponent(doctorName)}/${form.date}`
       );
       const data = await response.json();
-      console.log("Booked slots:", data.bookedSlots); // Debug
-      setAvailableSlots(data.availableSlots || []);
-      setBookedSlots(data.bookedSlots || []);
+      setAvailableSlots((data.availableSlots || []).map(normalizeTimeSlot));
+      setBookedSlots((data.bookedSlots || []).map(normalizeTimeSlot));
       // Reset timeSlot selection when slots change
       setForm((prev) => ({ ...prev, timeSlot: "" }));
     } catch (err) {
@@ -106,8 +134,10 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
   const change = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const selectTimeSlot = (slotTime) => {
-    if (availableSlots.includes(slotTime)) {
-      setForm((prev) => ({ ...prev, timeSlot: slotTime }));
+    const normalizedSlotTime = normalizeTimeSlot(slotTime);
+
+    if (availableSlots.includes(normalizedSlotTime)) {
+      setForm((prev) => ({ ...prev, timeSlot: normalizedSlotTime }));
     }
   };
 
@@ -158,10 +188,17 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
   };
 
   const getSlotStatus = (slotTime) => {
+    const normalizedSlotTime = normalizeTimeSlot(slotTime);
+
     // If slot is in booked list, it's booked
-    if (bookedSlots && bookedSlots.length > 0 && bookedSlots.includes(slotTime)) {
+    if (bookedSlots && bookedSlots.length > 0 && bookedSlots.includes(normalizedSlotTime)) {
       return "booked";
     }
+
+    if (availableSlots && availableSlots.length > 0 && !availableSlots.includes(normalizedSlotTime)) {
+      return "unavailable";
+    }
+
     // Otherwise it's available
     return "available";
   };
@@ -303,7 +340,8 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
                     }}>
                       {allSlots.map((slot) => {
                         const status = getSlotStatus(slot.time);
-                        const isSelected = form.timeSlot === slot.time;
+                        const normalizedSlotTime = normalizeTimeSlot(slot.time);
+                        const isSelected = form.timeSlot === normalizedSlotTime;
                         return (
                           <button
                             key={slot.time}
@@ -314,18 +352,18 @@ export default function DoctorsAppointment({ isLoggedIn, user, authToken }) {
                               padding: "12px",
                               border: "2px solid transparent",
                               borderRadius: "8px",
-                              cursor: status === "booked" ? "not-allowed" : "pointer",
+                              cursor: status !== "available" ? "not-allowed" : "pointer",
                               fontWeight: 500,
                               fontSize: "13px",
                               transition: "all 0.2s",
                               backgroundColor: isSelected
                                 ? "var(--primary)"
-                                : status === "booked"
+                                : status !== "available"
                                 ? "#e0e0e0"
                                 : "#e8f5e9",
-                              color: isSelected ? "white" : status === "booked" ? "#999" : "var(--primary)",
+                              color: isSelected ? "white" : status !== "available" ? "#999" : "var(--primary)",
                               borderColor: isSelected ? "var(--primary)" : "transparent",
-                              opacity: status === "booked" ? 0.6 : 1,
+                              opacity: status !== "available" ? 0.6 : 1,
                             }}
                           >
                             {slot.display}
