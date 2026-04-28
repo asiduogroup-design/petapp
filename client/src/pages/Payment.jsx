@@ -38,9 +38,8 @@ export default function Payment({ authToken }) {
     () => cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0),
     [cart]
   );
-  const shipping = subtotal > 0 ? 49 : 0;
   const taxes = Math.round(subtotal * 0.05);
-  const grandTotal = subtotal + shipping + taxes;
+  const grandTotal = subtotal + taxes;
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -240,16 +239,24 @@ export default function Payment({ authToken }) {
               <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
             </p>
             <p style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span>Shipping</span>
-              <strong>₹{shipping.toLocaleString("en-IN")}</strong>
-            </p>
-            <p style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
               <span>Tax (5%)</span>
               <strong>₹{taxes.toLocaleString("en-IN")}</strong>
             </p>
             <p style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: 18 }}>
               <span>Total</span>
               <strong>₹{grandTotal.toLocaleString("en-IN")}</strong>
+            </p>
+            <p
+              style={{
+                marginTop: 8,
+                paddingTop: 8,
+                borderTop: "1px dashed #cbd5e1",
+                color: "#0f766e",
+                fontWeight: 600,
+                fontSize: 14,
+              }}
+            >
+              Delivery Charges: Real-time and payable separately at delivery.
             </p>
 
             <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 16 }} disabled={submitting}>

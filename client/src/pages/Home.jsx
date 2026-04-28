@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaHeart, FaShoppingCart } from "react-icons/fa";
 import foodCategoryImage from "../assets/hero/food-category.svg";
 import toysCategoryImage from "../assets/hero/toys-category.svg";
 import medicinesCategoryImage from "../assets/hero/medicines-category.svg";
@@ -133,6 +134,96 @@ const heroSlides = [
 function Hero() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
+  const floatingPets = [
+    {
+      type: "dog",
+      image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=240&q=80",
+      top: "12%",
+      left: "-12%",
+      size: "64px",
+      duration: "26s",
+      delay: "0s",
+      motion: "pet-glide",
+      travel: "forward",
+    },
+    {
+      type: "cat",
+      image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=240&q=80",
+      top: "32%",
+      left: "-18%",
+      size: "60px",
+      duration: "30s",
+      delay: "3s",
+      motion: "pet-hop",
+      travel: "alternate",
+    },
+    {
+      type: "bird",
+      image: "https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&w=240&q=80",
+      top: "16%",
+      left: "-24%",
+      size: "54px",
+      duration: "23s",
+      delay: "1s",
+      motion: "pet-flutter",
+      travel: "reverse",
+    },
+    {
+      type: "fish",
+      image: "https://images.unsplash.com/photo-1524704796725-9fc3044a58b2?auto=format&fit=crop&w=240&q=80",
+      top: "60%",
+      left: "-14%",
+      size: "56px",
+      duration: "27s",
+      delay: "4s",
+      motion: "pet-swim",
+      travel: "forward",
+    },
+    {
+      type: "dog",
+      image: "https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&w=240&q=80",
+      top: "74%",
+      left: "-22%",
+      size: "58px",
+      duration: "25s",
+      delay: "8s",
+      motion: "pet-hop",
+      travel: "reverse",
+    },
+    {
+      type: "cat",
+      image: "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=240&q=80",
+      top: "46%",
+      left: "-28%",
+      size: "57px",
+      duration: "31s",
+      delay: "10s",
+      motion: "pet-glide",
+      travel: "alternate",
+    },
+    {
+      type: "bird",
+      image: "https://images.unsplash.com/photo-1452570053594-1b985d6ea890?auto=format&fit=crop&w=240&q=80",
+      top: "76%",
+      left: "-16%",
+      size: "50px",
+      duration: "24s",
+      delay: "12s",
+      motion: "pet-flutter",
+      travel: "forward",
+    },
+    {
+      type: "fish",
+      image: "https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=240&q=80",
+      top: "14%",
+      left: "-20%",
+      size: "55px",
+      duration: "29s",
+      delay: "14s",
+      motion: "pet-swim",
+      travel: "reverse",
+    },
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -176,6 +267,24 @@ function Hero() {
 
   return (
     <section className="hero">
+      <div className="hero-floating-bg" aria-hidden="true">
+        {floatingPets.map((pet, index) => (
+          <span
+            key={`${pet.type}-${index}`}
+            className={`hero-floating-pet ${pet.motion} ${pet.travel === "reverse" ? "pet-reverse" : ""} ${pet.travel === "alternate" ? "pet-alternate" : ""}`.trim()}
+            style={{
+              top: pet.top,
+              left: pet.left,
+              width: pet.size,
+              height: pet.size,
+              animationDuration: pet.duration,
+              animationDelay: pet.delay,
+            }}
+          >
+            <img src={pet.image} alt="" loading="lazy" />
+          </span>
+        ))}
+      </div>
       <div className="container">
         <div className="hero-content" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           <div className="hero-slide" key={activeSlide}>
@@ -291,8 +400,11 @@ function ProductsSection() {
                 <p className="product-star">{p.stars}</p>
                 <p className="product-price">{p.price}</p>
                 <div className="product-actions">
-                  <button className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-                    Add to Cart
+                  <button type="button" className="nav-icon-link home-product-icon-btn" aria-label={`Add ${p.name} to wishlist`} title="Add to Wishlist">
+                    <FaHeart />
+                  </button>
+                  <button type="button" className="nav-icon-link home-product-icon-btn" aria-label={`Add ${p.name} to cart`} title="Add to Cart">
+                    <FaShoppingCart />
                   </button>
                 </div>
               </div>

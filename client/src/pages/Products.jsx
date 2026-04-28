@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaHeart, FaShoppingCart } from "react-icons/fa";
 
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -311,21 +312,35 @@ export default function Products({ isLoggedIn, authToken }) {
                       <span>{p.size}</span>
                     </div>
                     <div className="product-actions">
-                      <button
-                        className="btn btn-primary btn-sm"
-                        style={{ flex: 1 }}
-                        disabled={orderingId === String(p.id ?? p._id ?? p.name)}
-                        onClick={() => saveOrder(p)}
-                      >
-                        {orderingId === String(p.id ?? p._id ?? p.name) ? "Adding..." : "Add to Cart"}
-                      </button>
-                      <button
-                        className="btn btn-outline btn-sm"
-                        onClick={() => toggleWishlist(p)}
-                        title="Toggle wishlist"
-                      >
-                        {wishlistMap[String(p.id ?? p._id ?? p.name)] ? "Saved" : "Wishlist"}
-                      </button>
+                      {(() => {
+                        const productId = String(p.id ?? p._id ?? p.name);
+                        const isOrdering = orderingId === productId;
+                        const isWishlisted = Boolean(wishlistMap[productId]);
+
+                        return (
+                          <>
+                            <button
+                              type="button"
+                              className={`nav-icon-link product-icon-btn${isWishlisted ? " active" : ""}`}
+                              onClick={() => toggleWishlist(p)}
+                              title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                              aria-label={isWishlisted ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`}
+                            >
+                              <FaHeart />
+                            </button>
+                            <button
+                              type="button"
+                              className="nav-icon-link product-icon-btn"
+                              disabled={isOrdering}
+                              onClick={() => saveOrder(p)}
+                              title={isOrdering ? "Adding to cart..." : "Add to Cart"}
+                              aria-label={isOrdering ? `Adding ${p.name} to cart` : `Add ${p.name} to cart`}
+                            >
+                              <FaShoppingCart />
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
