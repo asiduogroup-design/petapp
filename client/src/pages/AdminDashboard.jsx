@@ -4,6 +4,20 @@ import { FaUser, FaBox, FaClipboardList, FaCheck, FaBan, FaTrash, FaEye, FaCalen
 // Use VITE_API_URL from .env, fallback to relative path for local dev
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
+const formatMoney = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
+
+const formatPaymentMode = (method) => {
+  const normalized = String(method || "").toLowerCase();
+
+  if (normalized === "cod" || normalized === "cash_on_delivery") return "Cash on Delivery";
+  if (normalized === "cash") return "Cash";
+  if (normalized === "upi") return "UPI";
+  if (normalized === "card" || normalized === "credit_card" || normalized === "debit_card") return "Card";
+  if (normalized === "razorpay") return "Online Payment (Card/UPI)";
+
+  return method ? String(method).toUpperCase() : "-";
+};
+
 const SIDEBAR = [
   { key: "users", label: "Users", icon: <FaUser /> },
   { key: "products", label: "Products", icon: <FaBox /> },
@@ -24,6 +38,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const token = localStorage.getItem("petapp_token");
 
   // Add Product Modal State
@@ -343,7 +358,13 @@ export default function AdminDashboard() {
           </>
         )}
         {section === "orders" && (
-          <OrderTable orders={paginate(orders)[0]} loading={loading} error={error} onDelete={handleDeleteOrder} />
+          <OrderTable
+            orders={paginate(orders)[0]}
+            loading={loading}
+            error={error}
+            onView={setSelectedOrder}
+            onDelete={handleDeleteOrder}
+          />
         )}
         {section === "appointments" && (
           <AppointmentTable appointments={paginate(appointments)[0]} loading={loading} error={error} onUpdateStatus={handleUpdateAppointmentStatus} actionMsg={actionMsg} />
@@ -353,6 +374,9 @@ export default function AdminDashboard() {
           section === "users" ? users : section === "products" ? products : section === "appointments" ? appointments : orders
         )[1]} perPage={perPage} />
       </main>
+      {selectedOrder && (
+        <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      )}
     </div>
   );
 }
@@ -476,7 +500,7 @@ function ProductTable({ products, loading, error }) {
   );
 }
 
-function OrderTable({ orders, loading, error, onDelete }) {
+function OrderTable({ orders, loading, error, onView, onDelete }) {
   if (loading) return <div>Loading orders...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   return (
@@ -500,7 +524,7 @@ function OrderTable({ orders, loading, error, onDelete }) {
               <td>{o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "-"}</td>
               <td>{o.status}</td>
               <td>
-                <button style={iconBtnStyle}><FaEye /></button>
+                <button style={iconBtnStyle} onClick={() => onView(o)} title="View Order Details"><FaEye /></button>
                 <button style={{ ...iconBtnStyle, color: "#d9534f" }} onClick={() => onDelete(o._id)} title="Delete Order"><FaTrash /></button>
                 {/* Add update/cancel actions as needed */}
               </td>
@@ -508,6 +532,92 @@ function OrderTable({ orders, loading, error, onDelete }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function OrderDetailsModal({ order, onClose }) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  const itemSubtotal = items.reduce((sum, item) => {
+    const quantity = Number(item.quantity || 1);
+    const price = Number(item.price || 0);
+    return sum + price * quantity;
+  }, 0);
+  const orderTotal = Number(order.total || 0);
+  const orderExtra = Math.max(0, orderTotal - itemSubtotal);
+
+  return (
+    <div style={modalOverlayStyle} onClick={onClose}>
+      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", marginBottom: 18 }}>
+          <div>
+            <h3 style={{ marginBottom: 6 }}>Order Details</h3>
+            <p style={{ color: "#64748b", fontSize: 14 }}>Order ID: {order._id}</p>
+          </div>
+          <button type="button" style={closeBtnStyle} onClick={onClose}>Close</button>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 18 }}>
+          <DetailBox label="Customer" value={order.user?.name || order.billingDetails?.fullName || "-"} />
+          <DetailBox label="Date" value={order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "-"} />
+          <DetailBox label="Payment Mode" value={formatPaymentMode(order.paymentMethod)} />
+          <DetailBox label="Total Amt Paid" value={formatMoney(order.total)} />
+        </div>
+
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
+            <thead>
+              <tr style={{ background: "#f7f7fa" }}>
+                <th style={detailThStyle}>Product Name</th>
+                <th style={detailThStyle}>Quantity</th>
+                <th style={detailThStyle}>Price</th>
+                <th style={detailThStyle}>Total Amt Paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length ? (
+                items.map((item, index) => {
+                  const quantity = Number(item.quantity || 1);
+                  const price = Number(item.price || 0);
+                  const amount = price * quantity;
+                  const extraShare = itemSubtotal > 0 ? orderExtra * (amount / itemSubtotal) : 0;
+
+                  return (
+                    <tr key={`${item.productId || item.name || "item"}-${index}`}>
+                      <td style={detailTdStyle}>{item.name || "Product"}</td>
+                      <td style={detailTdStyle}>{quantity}</td>
+                      <td style={detailTdStyle}>{formatMoney(price)}</td>
+                      <td style={detailTdStyle}>{formatMoney(amount + extraShare)}</td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td style={detailTdStyle} colSpan={4}>No product details available.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ minWidth: 220, borderTop: "1px solid #e2e8f0", paddingTop: 12 }}>
+            <p style={{ display: "flex", justifyContent: "space-between", gap: 20, fontWeight: 700 }}>
+              <span>Total Paid</span>
+              <span>{formatMoney(order.total)}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailBox({ label, value }) {
+  return (
+    <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 12, background: "#f8fafc" }}>
+      <p style={{ color: "#64748b", fontSize: 13, marginBottom: 4 }}>{label}</p>
+      <p style={{ color: "#0f172a", fontWeight: 700, wordBreak: "break-word" }}>{value}</p>
     </div>
   );
 }
@@ -632,4 +742,48 @@ const iconBtnStyle = {
   fontSize: 16,
   color: "#007bff",
   outline: "none",
+};
+
+const modalOverlayStyle = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(15, 23, 42, 0.45)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 20,
+  zIndex: 9999,
+};
+
+const modalStyle = {
+  width: "min(900px, 100%)",
+  maxHeight: "88vh",
+  overflowY: "auto",
+  background: "#fff",
+  borderRadius: 12,
+  boxShadow: "0 20px 50px rgba(15, 23, 42, 0.22)",
+  padding: 24,
+};
+
+const closeBtnStyle = {
+  border: "1px solid #cbd5e1",
+  borderRadius: 8,
+  background: "#fff",
+  padding: "8px 12px",
+  cursor: "pointer",
+  fontWeight: 700,
+};
+
+const detailThStyle = {
+  textAlign: "left",
+  padding: "10px 12px",
+  border: "1px solid #e2e8f0",
+  fontWeight: 700,
+};
+
+const detailTdStyle = {
+  textAlign: "left",
+  padding: "10px 12px",
+  border: "1px solid #e2e8f0",
+  verticalAlign: "top",
 };
