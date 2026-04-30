@@ -181,6 +181,21 @@ export default function Profile() {
     window.dispatchEvent(new Event("petapp:storage-updated"));
   };
 
+  const viewOrder = (order) => {
+    navigate("/payment/success", {
+      state: {
+        orderId: order._id,
+        paymentMethod: order.paymentMethod,
+        paymentId: order.razorpayPaymentId,
+        total: order.total,
+        itemCount: Array.isArray(order.items) ? order.items.length : 0,
+        items: order.items || [],
+        billingDetails: order.billingDetails || {},
+        createdAt: order.createdAt,
+      },
+    });
+  };
+
   if (loading) {
     return <div className="container" style={{ padding: "2rem 0" }}>Loading your dashboard...</div>;
   }
@@ -312,6 +327,7 @@ export default function Profile() {
                     <th style={thStyle}>Total</th>
                     <th style={thStyle}>Status</th>
                     <th style={thStyle}>Date</th>
+                    <th style={thStyle}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -322,6 +338,15 @@ export default function Profile() {
                       <td style={tdStyle}>₹{Number(order.total || 0).toLocaleString("en-IN")}</td>
                       <td style={tdStyle}>{order.status || "pending"}</td>
                       <td style={tdStyle}>{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "-"}</td>
+                      <td style={tdStyle}>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => viewOrder(order)}
+                        >
+                          View
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

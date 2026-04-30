@@ -14,10 +14,36 @@ const truncate = (value, max = 42) => {
   return text.length > max ? `${text.slice(0, max - 3)}...` : text;
 };
 
+const SELLER_INFO = {
+  name: "Kalyani Pet Shop",
+  address: "Pet care products and services",
+  city: "Bengaluru, Karnataka, India",
+  gstin: import.meta.env.VITE_STORE_GSTIN || "GSTIN: To be updated",
+  phone: import.meta.env.VITE_STORE_PHONE || "+91 98765 43210",
+  email: import.meta.env.VITE_STORE_EMAIL || "support@kalyanipetshop.com",
+};
+
 const createInvoicePdf = ({ orderId, paymentMethod, paymentId, total, itemCount, items, billingDetails, createdAt }) => {
   const invoiceDate = createdAt ? new Date(createdAt) : new Date();
   const invoiceNo = orderId ? `INV-${String(orderId).slice(-8).toUpperCase()}` : `INV-${Date.now()}`;
   const safeItems = Array.isArray(items) && items.length ? items : [];
+  const paidTotal = Number(total || 0);
+  const itemSubtotal = safeItems.length
+    ? safeItems.reduce((sum, item) => {
+        const qty = Number(item.quantity || 1);
+        const rate = Number(item.price || 0);
+        return sum + rate * qty;
+      }, 0)
+    : paidTotal;
+  const taxableValue = itemSubtotal;
+  const totalGst = Math.max(0, paidTotal - taxableValue);
+  const cgst = totalGst / 2;
+  const sgst = totalGst / 2;
+  const customerAddress = [
+    billingDetails?.address,
+    billingDetails?.city,
+    billingDetails?.pincode,
+  ].filter(Boolean).join(", ");
   const lines = [];
 
   const text = (x, y, size, value) => {
@@ -33,67 +59,97 @@ const createInvoicePdf = ({ orderId, paymentMethod, paymentId, total, itemCount,
     lines.push(`${x} ${y} ${w} ${h} re S`);
   };
 
-  lines.push("0.05 0.48 0.43 rg 0 792 612 50 re f");
+  lines.push("0.05 0.48 0.43 rg 0 792 612 64 re f");
   lines.push("1 1 1 rg");
   lines.push("0 0 0 RG 0.85 0.9 0.95 RG");
-  bold(42, 754, 22, "Pet App");
-  text(42, 735, 10, "Premium pet products and services");
-  bold(440, 752, 24, "INVOICE");
-  text(440, 733, 10, invoiceNo);
+  bold(42, 746, 22, SELLER_INFO.name);
+  text(42, 728, 10, "Tax Invoice / Bill of Supply");
+  bold(420, 746, 24, "INVOICE");
+  text(420, 727, 10, invoiceNo);
 
   lines.push("0 0 0 rg");
-  rect(42, 620, 528, 92);
-  bold(58, 690, 11, "Bill To");
-  text(58, 672, 10, billingDetails?.fullName || "Customer");
-  text(58, 656, 10, billingDetails?.email || "-");
-  text(58, 640, 10, billingDetails?.phone || "-");
-  text(58, 624, 10, [billingDetails?.address, billingDetails?.city, billingDetails?.pincode].filter(Boolean).join(", ") || "-");
+  rect(42, 646, 528, 54);
+  bold(58, 682, 11, "Sold By");
+  text(58, 666, 9, SELLER_INFO.address);
+  text(58, 652, 9, SELLER_INFO.city);
+  text(335, 682, 9, SELLER_INFO.gstin);
+  text(335, 666, 9, `Phone: ${SELLER_INFO.phone}`);
+  text(335, 652, 9, `Email: ${SELLER_INFO.email}`);
 
-  bold(365, 690, 11, "Order Details");
-  text(365, 672, 10, `Order ID: ${orderId || "-"}`);
-  text(365, 656, 10, `Date: ${invoiceDate.toLocaleDateString("en-IN")}`);
-  text(365, 640, 10, `Payment: ${paymentMethod ? paymentMethod.toUpperCase() : "-"}`);
-  text(365, 624, 10, `Payment ID: ${paymentId || "-"}`);
+  rect(42, 530, 528, 96);
+  bold(58, 606, 11, "Bill To / Customer Details");
+  text(58, 588, 10, billingDetails?.fullName || "Customer");
+  text(58, 572, 10, `Email: ${billingDetails?.email || "-"}`);
+  text(58, 556, 10, `Phone: ${billingDetails?.phone || "-"}`);
+  text(58, 540, 10, `Address: ${truncate(customerAddress || "-", 48)}`);
 
-  lines.push("0.96 0.98 1 rg 42 560 528 28 re f 0.85 0.9 0.95 RG");
+  bold(365, 606, 11, "Order Details");
+  text(365, 588, 10, `Order ID: ${orderId || "-"}`);
+  text(365, 572, 10, `Invoice Date: ${invoiceDate.toLocaleDateString("en-IN")}`);
+  text(365, 556, 10, `Payment Mode: ${paymentMethod ? paymentMethod.toUpperCase() : "-"}`);
+  text(365, 540, 10, `Payment ID: ${truncate(paymentId || "-", 28)}`);
+
+  bold(42, 498, 11, "Order Items");
+  lines.push("0.93 0.97 1 rg 42 466 528 30 re f");
+  lines.push("0 0 0 rg 0.85 0.9 0.95 RG");
   const visibleItemCount = Math.max(safeItems.slice(0, 10).length, 1);
-  rect(42, 532 - (visibleItemCount - 1) * 26, 528, 56 + visibleItemCount * 26);
-  bold(58, 570, 10, "Item");
-  bold(325, 570, 10, "Qty");
-  bold(385, 570, 10, "Rate");
-  bold(485, 570, 10, "Amount");
-  line(42, 560, 570, 560);
+  const tableBottom = 438 - (visibleItemCount - 1) * 26;
+  rect(42, tableBottom, 528, 58 + visibleItemCount * 26);
+  bold(58, 478, 9, "Product Name");
+  bold(252, 478, 9, "Quantity");
+  bold(318, 478, 9, "Price");
+  bold(390, 478, 9, "GST");
+  bold(470, 478, 9, "Total Amt Paid");
+  line(42, 466, 570, 466);
+  line(242, tableBottom, 242, 496);
+  line(306, tableBottom, 306, 496);
+  line(378, tableBottom, 378, 496);
+  line(458, tableBottom, 458, 496);
 
   if (safeItems.length) {
     safeItems.slice(0, 10).forEach((item, index) => {
-      const y = 540 - index * 26;
+      const y = 444 - index * 26;
       const qty = Number(item.quantity || 1);
       const rate = Number(item.price || 0);
-      text(58, y, 10, truncate(item.name || "Product", 38));
-      text(325, y, 10, qty);
-      text(385, y, 10, formatMoney(rate));
-      text(485, y, 10, formatMoney(rate * qty));
+      const amount = rate * qty;
+      const gstAmount = itemSubtotal > 0 ? totalGst * (amount / itemSubtotal) : 0;
+      const rowTotal = amount + gstAmount;
+      text(58, y, 9, truncate(item.name || "Product", 30));
+      text(252, y, 9, qty);
+      text(318, y, 9, formatMoney(rate));
+      text(390, y, 9, formatMoney(gstAmount));
+      text(470, y, 9, formatMoney(rowTotal));
+      line(42, y - 11, 570, y - 11);
     });
   } else {
-    text(58, 540, 10, `Pet products order (${itemCount || 1} item${itemCount === 1 ? "" : "s"})`);
-    text(325, 540, 10, itemCount || 1);
-    text(385, 540, 10, formatMoney(total));
-    text(485, 540, 10, formatMoney(total));
+    text(58, 444, 9, `Pet products order (${itemCount || 1} item${itemCount === 1 ? "" : "s"})`);
+    text(252, 444, 9, itemCount || 1);
+    text(318, 444, 9, formatMoney(taxableValue));
+    text(390, 444, 9, formatMoney(totalGst));
+    text(470, 444, 9, formatMoney(paidTotal));
+    line(42, 433, 570, 433);
   }
 
-  line(360, 250, 570, 250);
-  text(380, 228, 11, "Subtotal");
-  text(500, 228, 11, formatMoney(total));
-  text(380, 208, 11, "Tax");
-  text(500, 208, 11, "Included");
-  lines.push("0.05 0.48 0.43 rg 360 164 210 32 re f");
+  line(360, 236, 570, 236);
+  text(380, 216, 10, "Taxable Value");
+  text(500, 216, 10, formatMoney(taxableValue));
+  text(380, 198, 10, "CGST 9%");
+  text(500, 198, 10, formatMoney(cgst));
+  text(380, 180, 10, "SGST 9%");
+  text(500, 180, 10, formatMoney(sgst));
+  text(380, 162, 10, "Round Off");
+  text(500, 162, 10, formatMoney(paidTotal - taxableValue - totalGst));
+  lines.push("0.05 0.48 0.43 rg 360 116 210 32 re f");
   lines.push("1 1 1 rg 0 0 0 RG");
-  bold(380, 174, 13, "Total Paid");
-  bold(500, 174, 13, formatMoney(total));
+  bold(380, 126, 13, "Total Paid");
+  bold(500, 126, 13, formatMoney(paidTotal));
 
   lines.push("0 0 0 rg");
-  text(42, 136, 10, "Thank you for shopping with Pet App.");
-  text(42, 118, 9, "This is a system-generated invoice for your successful payment.");
+  bold(42, 184, 10, "Declaration");
+  text(42, 166, 9, "The goods/services listed above were supplied to the customer named in this invoice.");
+  text(42, 148, 9, "GST is added to the product price and included in the final paid amount.");
+  text(42, 110, 10, "Thank you for shopping with Kalyani Pet Shop.");
+  text(42, 92, 9, "This is a system-generated invoice and does not require a physical signature.");
 
   const stream = lines.join("\n");
   const objects = [
