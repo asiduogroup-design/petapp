@@ -54,12 +54,29 @@ function Layout({ isLoggedIn, user, authToken, loadingUser, onLogin, onLogout })
           }
         />
 
-        <Route path="/login" element={<LoginRegister onLogin={onLogin} />} />
+        <Route
+          path="/login"
+          element={
+            loadingUser && authToken ? (
+              <div className="container" style={{ textAlign:"center", marginTop:80 }}>
+                Restoring your session...
+              </div>
+            ) : isLoggedIn ? (
+              <Navigate to="/" replace />
+            ) : (
+              <LoginRegister onLogin={onLogin} />
+            )
+          }
+        />
 
         <Route
           path="/payment"
           element={
-            user ? (
+            loadingUser && authToken ? (
+              <div className="container" style={{ textAlign:"center", marginTop:80 }}>
+                Loading payment...
+              </div>
+            ) : user ? (
               <Payment authToken={authToken} />
             ) : (
               <Navigate to="/login" replace />
@@ -70,7 +87,11 @@ function Layout({ isLoggedIn, user, authToken, loadingUser, onLogin, onLogout })
         <Route
           path="/payment/success"
           element={
-            user ? (
+            loadingUser && authToken ? (
+              <div className="container" style={{ textAlign:"center", marginTop:80 }}>
+                Loading order...
+              </div>
+            ) : user ? (
               <PaymentSuccess />
             ) : (
               <Navigate to="/login" replace />
@@ -119,7 +140,7 @@ function Layout({ isLoggedIn, user, authToken, loadingUser, onLogin, onLogout })
 
 function App() {
 
-  const [authToken, setAuthToken] = useState("");
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem("petapp_token") || "");
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [showTimeout, setShowTimeout] = useState(false);
