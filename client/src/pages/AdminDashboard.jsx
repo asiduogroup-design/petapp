@@ -34,6 +34,8 @@ export default function AdminDashboard() {
     name: "",
     category: "food",
     quantity: 1,
+    cost: "",
+    image: "",
     description: ""
   });
 
@@ -247,11 +249,12 @@ export default function AdminDashboard() {
                     body: JSON.stringify(addProductForm),
                   });
                   if (!res.ok) throw new Error((await res.json()).message || "Failed to add product");
-                  setAddProductForm({ name: "", category: "food", quantity: 1, description: "" });
+                  setAddProductForm({ name: "", category: "food", quantity: 1, cost: "", image: "", description: "" });
                   // Refresh products
                   const resP = await fetch(`${API_BASE}/api/products`);
-                  setProducts(await resP.json());
-                  setStats(s => ({ ...s, products: products.length + 1 }));
+                  const refreshedProducts = await resP.json();
+                  setProducts(refreshedProducts);
+                  setStats(s => ({ ...s, products: refreshedProducts.length }));
                   setActionMsg("Product added successfully!");
                 } catch (err) {
                   setAddProductError(err.message);
@@ -294,6 +297,29 @@ export default function AdminDashboard() {
                   required
                   value={addProductForm.quantity}
                   onChange={e => setAddProductForm(f => ({ ...f, quantity: Number(e.target.value) }))}
+                  style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label>Cost</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  required
+                  value={addProductForm.cost}
+                  onChange={e => setAddProductForm(f => ({ ...f, cost: e.target.value }))}
+                  placeholder="499"
+                  style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label>Image URL</label>
+                <input
+                  type="url"
+                  value={addProductForm.image}
+                  onChange={e => setAddProductForm(f => ({ ...f, image: e.target.value }))}
+                  placeholder="https://example.com/product.jpg"
                   style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
                 />
               </div>
@@ -407,11 +433,13 @@ function ProductTable({ products, loading, error }) {
   return (
     <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px #eee", padding: 24, overflowX: "auto" }} className="responsive-table">
       <h3 style={{ marginBottom: 16 }}>Product Management</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
         <thead>
           <tr style={{ background: "#f7f7fa" }}>
+            <th>Image</th>
             <th>Name</th>
             <th>Category</th>
+            <th>Cost</th>
             <th>Stock</th>
             <th>Status</th>
             <th>Actions</th>
@@ -420,8 +448,20 @@ function ProductTable({ products, loading, error }) {
         <tbody>
           {products.map((p) => (
             <tr key={p._id || p.id}>
+              <td>
+                {p.image ? (
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8, border: "1px solid #eee" }}
+                  />
+                ) : (
+                  <span style={{ display: "inline-block", width: 48, textAlign: "center" }}>{p.emoji || "-"}</span>
+                )}
+              </td>
               <td>{p.name}</td>
               <td>{p.category || p.cat || '-'}</td>
+              <td>{p.cost != null || p.price != null ? `Rs. ${Number(p.cost ?? p.price).toLocaleString("en-IN")}` : "-"}</td>
               <td>{p.quantity ?? p.stock ?? '-'}</td>
               <td>{p.status || (!p.adopted ? "Active" : "Inactive")}</td>
               <td>

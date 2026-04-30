@@ -4,6 +4,20 @@ import { apiRequest } from "../lib/api";
 
 const CART_KEY = "petapp_cart";
 
+const loadRazorpayCheckout = () =>
+  new Promise((resolve, reject) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => reject(new Error("Unable to load Razorpay Checkout."));
+    document.body.appendChild(script);
+  });
+
 export default function Payment({ authToken }) {
   const navigate = useNavigate();
 
@@ -17,7 +31,6 @@ export default function Payment({ authToken }) {
     }
   });
 
-  const [method, setMethod] = useState("card");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -27,11 +40,6 @@ export default function Payment({ authToken }) {
     address: "",
     city: "",
     pincode: "",
-    cardNumber: "",
-    cardName: "",
-    expiry: "",
-    cvv: "",
-    upiId: "",
   });
 
   const subtotal = useMemo(
@@ -41,6 +49,17 @@ export default function Payment({ authToken }) {
   const taxes = Math.round(subtotal * 0.05);
   const grandTotal = subtotal + taxes;
 
+  const orderItems = useMemo(
+    () =>
+      cart.map((item) => ({
+        productId: String(item.id),
+        name: item.name,
+        quantity: Number(item.quantity || 1),
+        price: Number(item.price || 0),
+      })),
+    [cart]
+  );
+
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -48,22 +67,30 @@ export default function Payment({ authToken }) {
 
   const validate = () => {
     if (!form.fullName || !form.email || !form.phone || !form.address || !form.city || !form.pincode) {
-      return "Please complete all billing details.";
-    }
-
-    if (method === "card") {
-      if (!form.cardNumber || !form.cardName || !form.expiry || !form.cvv) {
-        return "Please complete all card details.";
-      }
-    }
-
-    if (method === "upi") {
-      if (!form.upiId) {
-        return "Please enter your UPI ID.";
-      }
+      return "Please complete all billing and shipping details.";
     }
 
     return "";
+  };
+
+  const completePaidOrder = (createdOrder, paymentId) => {
+    localStorage.removeItem(CART_KEY);
+    window.dispatchEvent(new Event("petapp:storage-updated"));
+    const placedItemCount = cart.reduce((sum, item) => sum + Number(item.quantity || 1), 0);
+    setCart([]);
+    navigate("/payment/success", {
+      replace: true,
+      state: {
+        orderId: createdOrder?._id,
+        paymentMethod: "razorpay",
+        paymentId,
+        total: grandTotal,
+        itemCount: placedItemCount,
+        items: createdOrder?.items || orderItems,
+        billingDetails: createdOrder?.billingDetails || form,
+        createdAt: createdOrder?.createdAt || new Date().toISOString(),
+      },
+    });
   };
 
   const placeOrder = async (e) => {
@@ -90,37 +117,86 @@ export default function Payment({ authToken }) {
     setSubmitting(true);
 
     try {
-      const createdOrder = await apiRequest("/orders", {
+      const razorpayOrder = await apiRequest("/orders/razorpay/create", {
         method: "POST",
         token: authToken,
         body: {
-          items: cart.map((item) => ({
-            productId: String(item.id),
-            name: item.name,
-            quantity: Number(item.quantity || 1),
-            price: Number(item.price || 0),
-          })),
-          total: grandTotal,
-          paymentMethod: method,
+          amount: grandTotal,
+          currency: "INR",
         },
       });
 
-      localStorage.removeItem(CART_KEY);
-      window.dispatchEvent(new Event("petapp:storage-updated"));
-      const placedItemCount = cart.reduce((sum, item) => sum + Number(item.quantity || 1), 0);
-      setCart([]);
-      navigate("/payment/success", {
-        replace: true,
-        state: {
-          orderId: createdOrder?._id,
-          paymentMethod: method,
-          total: grandTotal,
-          itemCount: placedItemCount,
+      if (razorpayOrder.mock) {
+        const response = {
+          razorpay_order_id: razorpayOrder.razorpayOrderId,
+          razorpay_payment_id: razorpayOrder.mockPaymentId,
+          razorpay_signature: razorpayOrder.mockSignature,
+        };
+
+        const createdOrder = await apiRequest("/orders/razorpay/verify", {
+          method: "POST",
+          token: authToken,
+          body: {
+            ...response,
+            items: orderItems,
+            total: grandTotal,
+            billingDetails: form,
+          },
+        });
+
+        completePaidOrder(createdOrder, response.razorpay_payment_id);
+        return;
+      }
+
+      await loadRazorpayCheckout();
+
+      const checkout = new window.Razorpay({
+        key: razorpayOrder.key,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: "Pet App",
+        description: "Pet supplies order payment",
+        order_id: razorpayOrder.razorpayOrderId,
+        prefill: {
+          name: form.fullName,
+          email: form.email,
+          contact: form.phone,
+        },
+        notes: {
+          address: `${form.address}, ${form.city} - ${form.pincode}`,
+        },
+        theme: {
+          color: "#0f766e",
+        },
+        handler: async (response) => {
+          try {
+            const createdOrder = await apiRequest("/orders/razorpay/verify", {
+              method: "POST",
+              token: authToken,
+              body: {
+                ...response,
+                items: orderItems,
+                total: grandTotal,
+                billingDetails: form,
+              },
+            });
+
+            completePaidOrder(createdOrder, response.razorpay_payment_id);
+          } catch (verifyError) {
+            setError(verifyError.message || "Payment verification failed. Please contact support.");
+            setSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setSubmitting(false);
+          },
         },
       });
+
+      checkout.open();
     } catch (requestError) {
       setError(requestError.message || "Payment failed. Please try again.");
-    } finally {
       setSubmitting(false);
     }
   };
@@ -143,7 +219,9 @@ export default function Payment({ authToken }) {
     <section className="section">
       <div className="container" style={{ maxWidth: 1100 }}>
         <h2 className="section-title" style={{ textAlign: "left", marginBottom: 12 }}>Secure Checkout</h2>
-        <p style={{ color: "#64748b", marginBottom: 20 }}>Complete your payment to place the order.</p>
+        <p style={{ color: "#64748b", marginBottom: 20 }}>
+          Enter billing and shipping details. Razorpay Checkout will collect payment details securely.
+        </p>
 
         <form
           onSubmit={placeOrder}
@@ -155,7 +233,7 @@ export default function Payment({ authToken }) {
           }}
         >
           <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: 20 }}>
-            <h3 style={{ marginBottom: 14 }}>Billing Details</h3>
+            <h3 style={{ marginBottom: 14 }}>Billing & Shipping Details</h3>
             <div className="form-grid">
               <div className="form-group">
                 <label>Full Name</label>
@@ -183,40 +261,19 @@ export default function Payment({ authToken }) {
               </div>
             </div>
 
-            <h3 style={{ marginBottom: 14, marginTop: 20 }}>Payment Method</h3>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
-              <button type="button" className={`btn btn-sm ${method === "card" ? "btn-primary" : "btn-outline"}`} onClick={() => setMethod("card")}>Card</button>
-              <button type="button" className={`btn btn-sm ${method === "upi" ? "btn-primary" : "btn-outline"}`} onClick={() => setMethod("upi")}>UPI</button>
-              <button type="button" className={`btn btn-sm ${method === "cod" ? "btn-primary" : "btn-outline"}`} onClick={() => setMethod("cod")}>Cash on Delivery</button>
+            <div
+              style={{
+                marginTop: 18,
+                border: "1px dashed #99f6e4",
+                borderRadius: 10,
+                padding: 12,
+                background: "#f0fdfa",
+                color: "#115e59",
+                fontWeight: 600,
+              }}
+            >
+              Card, UPI, wallet and netbanking details are entered only inside Razorpay Checkout.
             </div>
-
-            {method === "card" && (
-              <div className="form-grid">
-                <div className="form-group full">
-                  <label>Card Number</label>
-                  <input name="cardNumber" value={form.cardNumber} onChange={onChange} placeholder="1234 5678 9012 3456" />
-                </div>
-                <div className="form-group">
-                  <label>Name on Card</label>
-                  <input name="cardName" value={form.cardName} onChange={onChange} placeholder="Kalyan" />
-                </div>
-                <div className="form-group">
-                  <label>Expiry</label>
-                  <input name="expiry" value={form.expiry} onChange={onChange} placeholder="MM/YY" />
-                </div>
-                <div className="form-group">
-                  <label>CVV</label>
-                  <input name="cvv" value={form.cvv} onChange={onChange} placeholder="123" />
-                </div>
-              </div>
-            )}
-
-            {method === "upi" && (
-              <div className="form-group" style={{ marginTop: 8 }}>
-                <label>UPI ID</label>
-                <input name="upiId" value={form.upiId} onChange={onChange} placeholder="name@upi" />
-              </div>
-            )}
 
             {error && <p style={{ color: "#b91c1c", marginTop: 12, fontWeight: 600 }}>{error}</p>}
           </div>
@@ -229,22 +286,22 @@ export default function Payment({ authToken }) {
                   <p style={{ color: "#334155", fontSize: 14 }}>
                     {item.name} x {Number(item.quantity || 1)}
                   </p>
-                  <p style={{ fontWeight: 700 }}>₹{(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString("en-IN")}</p>
+                  <p style={{ fontWeight: 700 }}>Rs. {(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString("en-IN")}</p>
                 </div>
               ))}
             </div>
             <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "12px 0" }} />
             <p style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
               <span>Subtotal</span>
-              <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
+              <strong>Rs. {subtotal.toLocaleString("en-IN")}</strong>
             </p>
             <p style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
               <span>Tax (5%)</span>
-              <strong>₹{taxes.toLocaleString("en-IN")}</strong>
+              <strong>Rs. {taxes.toLocaleString("en-IN")}</strong>
             </p>
             <p style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: 18 }}>
               <span>Total</span>
-              <strong>₹{grandTotal.toLocaleString("en-IN")}</strong>
+              <strong>Rs. {grandTotal.toLocaleString("en-IN")}</strong>
             </p>
             <p
               style={{
@@ -260,13 +317,14 @@ export default function Payment({ authToken }) {
             </p>
 
             <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 16 }} disabled={submitting}>
-              {submitting ? "Processing..." : "Pay Now"}
+              {submitting ? "Opening Razorpay..." : "Pay with Razorpay"}
             </button>
             <button
               type="button"
               className="btn btn-outline btn-block"
               style={{ marginTop: 10 }}
               onClick={() => navigate("/user?section=cart")}
+              disabled={submitting}
             >
               Back to Cart
             </button>

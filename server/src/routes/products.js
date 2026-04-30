@@ -23,11 +23,26 @@ router.post("/", async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: "MongoDB is not connected. Add MONGO_URI to enable writes." });
     }
-    const { name, category, quantity, description } = req.body;
-    if (!name || !category || !description || quantity == null) {
+    const { name, category, quantity, cost, image, description } = req.body;
+    const numericCost = Number(cost);
+
+    if (!name || !category || !description || quantity == null || cost == null) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    const product = await Product.create({ name, category, quantity, description });
+
+    if (!Number.isFinite(numericCost) || numericCost < 0) {
+      return res.status(400).json({ message: "Cost must be a valid number" });
+    }
+
+    const product = await Product.create({
+      name,
+      category,
+      quantity,
+      cost: numericCost,
+      price: numericCost,
+      image,
+      description,
+    });
     return res.status(201).json(product);
   } catch (error) {
     return res.status(400).json({ message: "Failed to create product", error: error.message });

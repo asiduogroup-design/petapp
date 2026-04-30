@@ -80,8 +80,8 @@ export default function Products({ isLoggedIn, authToken }) {
       return matchCat && matchBrand && matchSize && matchPet && matchSearch;
     })
     .sort((a, b) => {
-      if (sortBy === "low-to-high") return (a.price || 0) - (b.price || 0);
-      if (sortBy === "high-to-low") return (b.price || 0) - (a.price || 0);
+      if (sortBy === "low-to-high") return (a.price ?? a.cost ?? 0) - (b.price ?? b.cost ?? 0);
+      if (sortBy === "high-to-low") return (b.price ?? b.cost ?? 0) - (a.price ?? a.cost ?? 0);
       if (sortBy === "newest") return (b._id || b.id || 0) - (a._id || a.id || 0);
       return 0;
     });
@@ -125,7 +125,8 @@ export default function Products({ isLoggedIn, authToken }) {
             name: product.name,
             category: product.category || product.cat,
             cat: product.cat,
-            price: Number(product.price || 0),
+            price: Number(product.price ?? product.cost ?? 0),
+            image: product.image,
             emoji: product.emoji,
             quantity: 1,
           },
@@ -162,7 +163,8 @@ export default function Products({ isLoggedIn, authToken }) {
             name: product.name,
             category: product.category || product.cat,
             cat: product.cat,
-            price: product.price,
+            price: product.price ?? product.cost,
+            image: product.image,
             emoji: product.emoji,
           },
         ];
@@ -299,14 +301,24 @@ export default function Products({ isLoggedIn, authToken }) {
             <div className="products-grid">
               {visible.map((p, idx) => (
                 <div key={p._id || p.id || idx} className="product-card">
-                  <div className="product-img">{p.emoji}</div>
+                  <div className="product-img">
+                    {p.image ? (
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      p.emoji
+                    )}
+                  </div>
                   <div className="product-body">
-                    <span className="product-cat">{p.cat}</span>
+                    <span className="product-cat">{p.category || p.cat || "Product"}</span>
                     <p className="product-name">{p.name}</p>
                     <p className="product-star">
                       {p.stars} ({p.rating})
                     </p>
-                    <p className="product-price">₹{Number(p.price ?? 0).toLocaleString("en-IN")}</p>
+                    <p className="product-price">Rs. {Number(p.price ?? p.cost ?? 0).toLocaleString("en-IN")}</p>
                     <div className="product-meta">
                       <span>{p.brand}</span>
                       <span>{p.size}</span>

@@ -12,6 +12,18 @@ const orderSchema = new mongoose.Schema({
   ],
   status: { type: String, enum: ["pending", "completed", "cancelled"], default: "pending" },
   total: { type: Number, required: true },
+  paymentMethod: { type: String, default: "razorpay" },
+  paymentStatus: { type: String, enum: ["pending", "paid", "failed"], default: "pending" },
+  razorpayOrderId: String,
+  razorpayPaymentId: String,
+  billingDetails: {
+    fullName: String,
+    email: String,
+    phone: String,
+    address: String,
+    city: String,
+    pincode: String,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

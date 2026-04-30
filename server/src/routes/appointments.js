@@ -1,5 +1,6 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import Appointment from "../models/Appointment.js";
 
 const router = Router();
@@ -125,6 +126,9 @@ router.get("/", requireAuth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Forbidden: Admins only" });
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return res.json([]);
     }
     const appointments = await Appointment.find().sort({ createdAt: -1 });
     res.json(appointments);
